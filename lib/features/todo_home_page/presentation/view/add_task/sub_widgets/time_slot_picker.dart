@@ -140,54 +140,14 @@ class _TimeSlotPickerBottomSheetState extends State<TimeSlotPickerBottomSheet> {
                 ),
               ],
             ),
+            Divider(color: kContainerBgColor),
 
             Spacing.h16,
+            _timeZone(),
+            Spacing.h16,
+            Divider(color: kContainerBgColor),
 
-            // Time slot list
-            ListView.builder(
-              itemCount: slots.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                final time = _formatTime(slots[index]);
-                final isSelected = _selectedTime == time;
-
-                return Padding(
-                  padding:  EdgeInsets.symmetric(vertical: 6.h,horizontal: 16.w),
-                  child: Column(
-                    children: [
-                      if (!isSelected) ...[
-                        InkWell(
-                          onTap: () {
-                            setState(() => _selectedTime = time);
-                          },
-                          child: Container(
-                            height: 48.h,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? kPrimaryColor
-                                  : kContainerBgColor,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: kLightGreyColor)
-                            ),
-                            child: Text(
-                              time,
-                              style: TextStyle(
-                                color: isSelected
-                                    ? Colors.white
-                                    : kGreyDarkColor,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                      if (isSelected) _confirm(time),
-                    ],
-                  ),
-                );
-              },
-            ),
+            _listView(slots),
 
             Spacing.h24,
             Row(
@@ -231,7 +191,7 @@ class _TimeSlotPickerBottomSheetState extends State<TimeSlotPickerBottomSheet> {
       children: [
         Expanded(
           child: AppElevatedButton(
-            radius: 12,
+            radius: 10,
             backgroundColor: kLightBlackColor,
             onPressed: () => Navigator.pop(context),
             text: time,
@@ -241,7 +201,7 @@ class _TimeSlotPickerBottomSheetState extends State<TimeSlotPickerBottomSheet> {
         Spacing.w16,
         Expanded(
           child: AppElevatedButton(
-            radius: 12,
+            radius: 10,
             backgroundColor: kPrimaryColor,
             textStyle: TextStyles.inter16Regular.copyWith(color: Colors.white),
             text: "Confirm",
@@ -250,6 +210,26 @@ class _TimeSlotPickerBottomSheetState extends State<TimeSlotPickerBottomSheet> {
               widget.onNext(_selectedTime!);
             },
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _timeZone() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.access_time, color: kGreyDarkColor, size: 14),
+        Spacing.w4,
+        Text(
+          "Indian Standard Time (UTC+05:30)",
+          style: TextStyles.inter12Semi.copyWith(color: kGreyDarkColor),
+        ),
+
+        Icon(
+          Icons.keyboard_arrow_down_outlined,
+          size: 14,
+          color: kGreyDarkColor,
         ),
       ],
     );
@@ -286,5 +266,48 @@ class _TimeSlotPickerBottomSheetState extends State<TimeSlotPickerBottomSheet> {
       "Nov",
       "Dec",
     ][month - 1];
+  }
+
+  Widget _listView(List<DateTime> slots) {
+    return ListView.builder(
+      itemCount: slots.length,
+      shrinkWrap: true,
+      itemBuilder: (context, index) {
+        final time = _formatTime(slots[index]);
+        final isSelected = _selectedTime == time;
+
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 16.w),
+          child: Column(
+            children: [
+              if (!isSelected) ...[
+                InkWell(
+                  onTap: () {
+                    setState(() => _selectedTime = time);
+                  },
+                  child: Container(
+                    height: 48.h,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: isSelected ? kPrimaryColor : kContainerBgColor,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: kLightGreyColor),
+                    ),
+                    child: Text(
+                      time,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              if (isSelected) _confirm(time),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

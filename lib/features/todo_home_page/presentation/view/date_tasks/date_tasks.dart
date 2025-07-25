@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../shared/app_constants.dart';
-import '../../../todo_home_page/presentation/view/add_task/all_tasks_calendar.dart';
-import '../../../todo_home_page/presentation/view/add_task/success_dialog.dart';
-import '../../../todo_home_page/presentation/view/add_task/task_item_view.dart';
+import '../add_task/all_tasks_calendar.dart';
+import '../add_task/success_dialog.dart';
+import '../add_task/task_item_view.dart';
 
-
-class CalendarView extends StatelessWidget {
+class DateTasks extends StatelessWidget {
   static const String path = '/date-tasks';
   static const String name = 'date-tasks';
+  final String date;
 
-  const CalendarView({Key? key}) : super(key: key);
+  const DateTasks({Key? key, required this.date}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

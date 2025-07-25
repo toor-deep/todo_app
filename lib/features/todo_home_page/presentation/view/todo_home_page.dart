@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:todo/design-system/app_colors.dart';
 import 'package:todo/design-system/styles.dart';
+import 'package:todo/features/todo_home_page/presentation/view/add_task/success_dialog.dart';
 import 'package:todo/shared/app_icons.dart';
-import 'package:todo/shared/widgets/circular_button.dart';
 import 'package:todo/shared/widgets/elevated_button.dart';
 
 import '../../../../shared/app_constants.dart';
 import '../../../../shared/widgets/app_outlined_button.dart';
 import 'add_task/add_task_sheet.dart';
+import 'add_task/task_item_view.dart';
+import 'date_tasks/date_tasks.dart';
 import 'expandable_button.dart';
 
 class ToDoHomePage extends StatefulWidget {
@@ -25,7 +28,7 @@ class _ToDoHomePageState extends State<ToDoHomePage> {
   List<String> categories = ["To-Do", "Habit", "Journal", "Note"];
   bool isExpanded = false;
   String selected = "To-Do";
-
+bool isEdit=false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +40,6 @@ class _ToDoHomePageState extends State<ToDoHomePage> {
             backgroundColor: Colors.transparent,
             builder: (_) => const NewTodoBottomSheet(),
           );
-
         },
         onAddNote: () => print("Add Note"),
         onAddJournal: () => print("Add Journal"),
@@ -73,6 +75,7 @@ class _ToDoHomePageState extends State<ToDoHomePage> {
             Spacing.h16,
             _buildCategoryButtons(),
             Spacing.h16,
+            _listView([])
           ],
         ),
       ),
@@ -116,4 +119,30 @@ class _ToDoHomePageState extends State<ToDoHomePage> {
     );
   }
 
+  Widget _listView(List<TaskData> items) {
+    return Expanded(
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: 5,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding:  EdgeInsets.only(bottom: 20.h),
+            child: TaskItemView(
+              onEdit: (data){
+                context.pushNamed(DateTasks.name);
+              },
+              taskData: TaskData(
+                isCompleted: false,
+                taskName: "Task ${index + 1}",
+                taskDescription: "This is the description for task ${index + 1}.",
+                taskTime: "10:00 AM",
+                taskDate: "2024-03-20",
+                taskPriority: 'Medium Priority',
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }

@@ -38,6 +38,7 @@ final appRouter = GoRouter(
         name: ToDoHomePage.name,
         builder: (context, state) => ToDoHomePage(),
       ),
+
       GoRoute(
         path: NotificationsView.path,
         name: NotificationsView.name,
