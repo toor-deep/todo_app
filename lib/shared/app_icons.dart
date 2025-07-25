@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 enum AppIcons {
-logo,home,bell,calendar,user,orangelogo
+logo,home,bell,calendar,user,orangelogo,filter
 }
 
 class AppIcon extends StatelessWidget {

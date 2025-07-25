@@ -9,6 +9,8 @@ class AppElevatedButton extends StatelessWidget {
   final Color? backgroundColor;
   final TextStyle? textStyle;
   final Widget? widget;
+  final double? height;
+  final double? width;
 
   const AppElevatedButton({
     super.key,
@@ -16,6 +18,8 @@ class AppElevatedButton extends StatelessWidget {
     required this.text,
     required this.onPressed,
     this.textStyle,
+    this.height,
+    this.width,
     this.radius =8,
     this.backgroundColor,
   });
@@ -23,8 +27,8 @@ class AppElevatedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 48.h,
-      width: double.infinity,
+      height: height?? 48.h,
+      width: width?? double.infinity,
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(radius ?? 24),

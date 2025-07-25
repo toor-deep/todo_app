@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:todo/design-system/app_colors.dart';
 import 'package:todo/features/auth/presentation/sign_in_view.dart';
+import 'package:todo/features/bottom_bar/bottom_screen_view.dart';
 
 import '../../../design-system/styles.dart';
 import '../../../shared/app_constants.dart';
@@ -119,7 +120,9 @@ class _SignUpViewState extends State<SignUpView> {
               AppElevatedButton(
                 text: 'Register',
                 backgroundColor: kPrimaryColor,
-                onPressed: () {},
+                onPressed: () {
+                  context.goNamed(BottomNavBar.name);
+                },
               ),
             ],
           ),
