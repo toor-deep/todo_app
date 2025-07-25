@@ -1,23 +1,210 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:todo/features/auth/presentation/sign_up_view.dart';
+import 'package:todo/shared/assets/images.dart';
 
-class SignInView extends StatelessWidget {
+import '../../../design-system/app_colors.dart';
+import '../../../design-system/styles.dart';
+import '../../../shared/app_constants.dart';
+import '../../../shared/app_icons.dart';
+import '../../../shared/widgets/elevated_button.dart';
+import '../../../shared/widgets/text_field.dart';
+
+class SignInView extends StatefulWidget {
   static const String path = '/sign-in';
   static const String name = 'Sign In';
 
   const SignInView({super.key});
 
   @override
+  State<SignInView> createState() => _SignInViewState();
+}
+
+class _SignInViewState extends State<SignInView> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign In'),
+      body: SingleChildScrollView(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.white,
+                kPrimaryColor.withValues(alpha: 0.1),
+                kPrimaryColor.withValues(alpha: 0.1),
+                Colors.white,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 97.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const AppIcon(AppIcons.orangelogo, size: 26),
+                  Spacing.w6,
+                  Text(
+                    'TO-DO',
+                    style: TextStyles.inter27Bold.copyWith(
+                      fontSize: 20,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w900,
+                      color: kPrimaryColor,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 61.h),
+              _container(),
+            ],
+          ),
+        ),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            // Handle sign-in logic here
-          },
-          child: const Text('Sign In'),
+    );
+  }
+
+  Widget _container() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Card(
+        elevation: 5,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Spacing.h24,
+              _login(),
+              Spacing.h24,
+              TextFieldClass(label: 'Email'),
+              Spacing.h16,
+              TextFieldClass(label: 'Password', isPassword: true),
+              Spacing.h16,
+              _rememberAndForgot(),
+              Spacing.h24,
+
+              AppElevatedButton(
+                text: 'Login',
+                backgroundColor: kPrimaryColor,
+                onPressed: () {},
+              ),
+              Spacing.h24,
+              Row(
+                children: [
+                  Expanded(
+                    child: Divider(thickness: 1, color: Colors.grey.shade300),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text('Or', style: TextStyle(color: Colors.grey)),
+                  ),
+                  Expanded(
+                    child: Divider(thickness: 1, color: Colors.grey.shade300),
+                  ),
+                ],
+              ),
+              Spacing.h24,
+
+              _outlinedButton(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _login() {
+    return Align(
+      alignment: Alignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text("Login", style: TextStyles.inter27Bold.copyWith(fontSize: 32)),
+          Spacing.h12,
+          _buildSignUpText(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSignUpText() => RichText(
+    text: TextSpan(
+      children: [
+        TextSpan(
+          text: 'Don’t have an account?  ',
+          style: TextStyles.inter12Semi.copyWith(color: kGreyDarkColor),
+        ),
+        TextSpan(
+          text: 'Sign Up',
+          style: TextStyles.inter12Regular.copyWith(color: kPrimaryColor),
+          recognizer: TapGestureRecognizer()
+            ..onTap = () {
+              context.pushNamed(SignUpView.name);
+            },
+        ),
+      ],
+    ),
+  );
+
+  Widget _rememberAndForgot() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Checkbox(
+              value: true,
+              onChanged: (value) {},
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+
+            Text(
+              "Remember Me",
+              style: TextStyles.inter12Regular.copyWith(color: kGreyDarkColor),
+            ),
+          ],
+        ),
+        Text(
+          "Forgot Password ?",
+          style: TextStyles.inter12Bold.copyWith(color: kPrimaryColor),
+        ),
+      ],
+    );
+  }
+
+  Widget _outlinedButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 48.h,
+      child: OutlinedButton(
+        onPressed: () {},
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: kContainerBgColor),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(AppImages.google, height: 24, width: 24),
+            SizedBox(width: 12),
+            Text(
+              'Continue with Google',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );

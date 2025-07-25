@@ -50,6 +50,7 @@ dependencies:
   flutter_svg:
   toastification:
   firebase_storage:
+  intl_phone_field: ^3.2.0
   smooth_page_indicator: ^1.2.1
 dev_dependencies:
   flutter_test:

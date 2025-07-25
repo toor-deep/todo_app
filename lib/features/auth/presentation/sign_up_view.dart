@@ -1,7 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:todo/design-system/app_colors.dart';
+import 'package:todo/features/auth/presentation/sign_in_view.dart';
 
 import '../../../design-system/styles.dart';
 import '../../../shared/app_constants.dart';
@@ -9,11 +12,33 @@ import '../../../shared/app_icons.dart';
 import '../../../shared/widgets/elevated_button.dart';
 import '../../../shared/widgets/text_field.dart';
 
-class SignUpView extends StatelessWidget {
+class SignUpView extends StatefulWidget {
   static const String path = '/sign-up';
   static const String name = 'Sign Up';
 
   const SignUpView({super.key});
+
+  @override
+  State<SignUpView> createState() => _SignUpViewState();
+}
+
+class _SignUpViewState extends State<SignUpView> {
+  final TextEditingController _dobController = TextEditingController();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (pickedDate != null) {
+      setState(() {
+        _dobController.text =
+            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +60,7 @@ class SignUpView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 48.h),
+              SizedBox(height: 97.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -84,11 +109,9 @@ class SignUpView extends StatelessWidget {
               Spacing.h16,
               TextFieldClass(label: 'Email'),
               Spacing.h16,
-
-              TextFieldClass(label: 'Date of Birth'),
+              _dateOfBirth(),
               Spacing.h16,
-
-              TextFieldClass(label: 'Phone Number'),
+              _phoneNumberField(),
               Spacing.h16,
 
               TextFieldClass(label: 'Set Password', isPassword: true),
@@ -105,6 +128,66 @@ class SignUpView extends StatelessWidget {
     );
   }
 
+  Widget _dateOfBirth() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Date of Birth",
+          style: TextStyles.inter12Semi.copyWith(color: kGreyDarkColor),
+        ),
+
+        GestureDetector(
+          onTap: () => _selectDate(context),
+          child: AbsorbPointer(
+            child: TextFormField(
+              style: TextStyles.inter12Regular.copyWith(fontWeight: FontWeight.w500),
+
+              decoration: InputDecoration(
+                suffixIcon: Icon(Icons.calendar_month),
+              ),
+              controller: _dobController,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _phoneNumberField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Phone Number",
+          style: TextStyles.inter12Semi.copyWith(color: kGreyDarkColor),
+        ),
+
+        IntlPhoneField(
+          flagsButtonPadding: const EdgeInsets.all(8),
+          disableLengthCheck: true,
+          dropdownIconPosition: IconPosition.trailing,
+          decoration: const InputDecoration(
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: kContainerBgColor),
+            ),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: kContainerBgColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: kGreyDarkColor),
+            ),
+          ),
+          showCursor: true,
+          showDropdownIcon: true,
+          onChanged: (phone) {
+            print(phone.completeNumber);
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildSignUpText() => RichText(
     text: TextSpan(
       children: [
@@ -115,7 +198,9 @@ class SignUpView extends StatelessWidget {
         TextSpan(
           text: 'Login',
           style: TextStyles.inter12Regular.copyWith(color: kPrimaryColor),
-          recognizer: TapGestureRecognizer()..onTap = () {},
+          recognizer: TapGestureRecognizer()..onTap = () {
+            context.pushNamed(SignInView.name);
+          },
         ),
       ],
     ),

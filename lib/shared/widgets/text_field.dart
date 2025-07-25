@@ -45,7 +45,9 @@ class TextFieldClass extends StatelessWidget {
         child: TextFormField(
           validator: validator,
           controller: controller,
-          style: TextStyles.inter12Regular,
+          style: TextStyles.inter12Regular.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
           minLines: 1,
           maxLines: maxLines ?? 1,
           textAlignVertical: TextAlignVertical.top,
