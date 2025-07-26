@@ -33,7 +33,7 @@ class BottomNavigationProvider extends ChangeNotifier {
     ),
     ItemData(
       id: 3,
-      view: const ProfileView(),
+      view:  ProfileView(),
       title: "Profile",
       selectedAppIcon: AppIcons.user,
     ),

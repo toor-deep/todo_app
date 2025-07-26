@@ -31,14 +31,14 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-          left: 16,
-          right: 16,
-          top: 12,
-        ),
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        left: 16,
+        right: 16,
+        top: 12,
+      ),
+      child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -71,12 +71,12 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
                 });
               },
               calendarStyle: CalendarStyle(
-                todayDecoration: BoxDecoration(
-                  color: kPrimaryColor,
+                todayDecoration: isSameDay(_selectedDate, DateTime.now())
+                    ? BoxDecoration()
+                    : BoxDecoration(
+                  color: kContainerBgColor,
                   shape: BoxShape.rectangle,
-                  // borderRadius: BorderRadius.circular(8),
                 ),
-
                 selectedDecoration: BoxDecoration(
                   color: kPrimaryColor,
                   shape: BoxShape.rectangle,
@@ -109,7 +109,8 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
                     ),
                     text: "Next",
                     onPressed: () {
-                      Navigator.pop(context);
+                      // Navigator.pop(context);
+            
                       widget.onNext(_selectedDate);
                     },
                   ),

@@ -1,17 +1,21 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:todo/design-system/app_colors.dart';
 import 'package:todo/design-system/styles.dart';
-import 'package:todo/features/todo_home_page/presentation/view/add_task/success_dialog.dart';
+import 'package:todo/features/todo_home_page/presentation/provider/task_provider.dart';
 import 'package:todo/shared/app_icons.dart';
+import 'package:todo/shared/assets/images.dart';
+import 'package:todo/shared/extensions/date_extensions.dart';
 import 'package:todo/shared/widgets/elevated_button.dart';
 
 import '../../../../shared/app_constants.dart';
 import '../../../../shared/widgets/app_outlined_button.dart';
+import '../../domain/entity/task_entity.dart';
 import 'add_task/add_task_sheet.dart';
 import 'add_task/task_item_view.dart';
-import 'date_tasks/date_tasks.dart';
 import 'expandable_button.dart';
 
 class ToDoHomePage extends StatefulWidget {
@@ -28,56 +32,81 @@ class _ToDoHomePageState extends State<ToDoHomePage> {
   List<String> categories = ["To-Do", "Habit", "Journal", "Note"];
   bool isExpanded = false;
   String selected = "To-Do";
-bool isEdit=false;
+  bool isEdit = false;
+  late TaskProvider taskProvider;
+  final userId = FirebaseAuth.instance.currentUser!.uid;
+
+  @override
+  void initState() {
+    super.initState();
+    taskProvider = context.read<TaskProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      taskProvider.fetchTasks(userId);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       floatingActionButton: ExpandableFab(
         onAddTodo: () {
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (_) => const NewTodoBottomSheet(),
+            builder: (_) => NewTodoBottomSheet(),
           );
         },
-        onAddNote: () => print("Add Note"),
-        onAddJournal: () => print("Add Journal"),
-        onSetupHabit: () => print("Setup Habit"),
-        onAddList: () => print("Setup Dashboard"),
+        onAddNote: () => {},
+        onAddJournal: () => {},
+        onSetupHabit: () => {},
+        onAddList: () => {},
       ),
 
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 50.h),
-            Text("Today", style: TextStyles.inter27Semi),
-            Spacing.h8,
-            Text(
-              "Mon 20 March 2024",
-              style: TextStyles.inter16Regular.copyWith(color: kGreyDarkColor),
-            ),
-            Spacing.h16,
-            Card(
-              child: TextFormField(
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search, color: kContainerBgColor),
-                  hintText: "Search Task",
-                  hintStyle: TextStyles.inter14Regular.copyWith(
-                    color: kContainerBgColor,
+      body: Consumer<TaskProvider>(
+        builder: (context, value, child) {
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 50.h),
+                Text("Today", style: TextStyles.inter27Semi),
+                Spacing.h8,
+                Text(
+                  DateTime.now().toFormattedString(),
+                  style: TextStyles.inter16Regular.copyWith(
+                    color: kGreyDarkColor,
                   ),
-                  border: OutlineInputBorder(borderSide: BorderSide.none),
                 ),
-              ),
+                Spacing.h16,
+                Card(
+                  child: TextFormField(
+                    onChanged: (value) {
+                      if (value.isEmpty) {
+                        taskProvider.fetchTasks(userId);
+                      }
+                      taskProvider.searchTasks(value);
+                    },
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.search, color: kContainerBgColor),
+                      hintText: "Search Task",
+                      hintStyle: TextStyles.inter14Regular.copyWith(
+                        color: kContainerBgColor,
+                      ),
+                      border: OutlineInputBorder(borderSide: BorderSide.none),
+                    ),
+                  ),
+                ),
+                Spacing.h16,
+                _buildCategoryButtons(),
+                Spacing.h16,
+                _listView(value.tasks),
+              ],
             ),
-            Spacing.h16,
-            _buildCategoryButtons(),
-            Spacing.h16,
-            _listView([])
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -114,35 +143,119 @@ bool isEdit=false;
                   borderColor: kContainerBgColor,
                 );
         }),
-        AppIcon(AppIcons.filter),
+        InkWell(
+          onTap: () {
+            showPriorityFilterBottomSheet(context, (priority) {
+                taskProvider.sortTasksByPriority(priority);
+
+            });
+          },
+
+          child: AppIcon(AppIcons.filter),
+        ),
       ],
     );
   }
 
-  Widget _listView(List<TaskData> items) {
+  Widget _listView(List<TaskEntity> items) {
+    if (items.isEmpty) {
+      return Center(child: Image.asset(AppImages.empty));
+    }
     return Expanded(
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding:  EdgeInsets.only(bottom: 20.h),
-            child: TaskItemView(
-              onEdit: (data){
-                context.pushNamed(DateTasks.name);
-              },
-              taskData: TaskData(
-                isCompleted: false,
-                taskName: "Task ${index + 1}",
-                taskDescription: "This is the description for task ${index + 1}.",
-                taskTime: "10:00 AM",
-                taskDate: "2024-03-20",
-                taskPriority: 'Medium Priority',
+      child: Skeletonizer(
+        enabled: false,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            final item = items[index];
+            return Padding(
+              padding: EdgeInsets.only(bottom: 20.h),
+              child: TaskItemView(
+                onEdit: (data) {},
+                taskData: TaskEntity(
+                  isCompleted: item.isCompleted,
+                  title: item.title,
+                  id: item.id,
+                  description: item.description,
+                  dueTime: item.dueTime,
+                  dueDate: item.dueDate,
+                  taskPriority: item.taskPriority,
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
+    );
+  }
+
+  void showPriorityFilterBottomSheet(
+    BuildContext context,
+    Function(String) onSelected,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Wrap(
+            children: [
+              const Center(
+                child: Text(
+                  'Select Priority',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                title: Text(
+                  'High',
+                  style: TextStyles.inter16Regular.copyWith(color: kRedColor),
+                ),
+                onTap: () {
+                  onSelected('High Priority');
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text(
+                  'Medium',
+                  style: TextStyles.inter16Regular.copyWith(
+                    color: kYellowColor,
+                  ),
+                ),
+                onTap: () {
+                  onSelected('Medium Priority');
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text(
+                  'Low',
+                  style: TextStyles.inter16Regular.copyWith(
+                    color: kGreenAccent,
+                  ),
+                ),
+                onTap: () {
+                  onSelected('Low Priority');
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Clear Filter'),
+                onTap: () {
+                  onSelected("");
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

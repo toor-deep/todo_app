@@ -8,7 +8,8 @@ import 'sub_widgets/bottom_icons.dart';
 import 'sub_widgets/input_fields.dart';
 
 class NewTodoBottomSheet extends StatelessWidget {
-  const NewTodoBottomSheet({super.key});
+   NewTodoBottomSheet({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +28,9 @@ class NewTodoBottomSheet extends StatelessWidget {
             children: [
               _topBar(),
               Spacing.h16,
-              const InputFields(),
+               InputFields(),
               Spacing.h20,
-              const BottomActions(),
+               BottomActions(),
               Divider(),
             ],
           ),

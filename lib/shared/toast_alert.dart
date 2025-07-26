@@ -17,16 +17,15 @@ void showToast(BuildContext context,
       type: type);
 }
 
-void showSnackbar(String? text, {bool error = false}) {
+void showSnackbar(String? text, {bool error = false,Color color = Colors.black}) {
   ScaffoldMessenger.of(appNavigationKey.currentContext!).clearSnackBars();
 
-  Color? alertColor;
   if (error) {
-    alertColor = Colors.red;
+    color = Colors.red;
   }
 
   ScaffoldMessenger.of(appNavigationKey.currentContext!).showSnackBar(SnackBar(
-      backgroundColor: alertColor,
+      backgroundColor: color,
       content: Text(
         '$text',
       )));

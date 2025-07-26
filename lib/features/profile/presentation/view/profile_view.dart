@@ -1,16 +1,35 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:todo/design-system/styles.dart';
+import 'package:todo/features/auth/presentation/provider/auth_provider.dart';
+import 'package:todo/features/auth/presentation/sign_in_view.dart';
 import 'package:todo/shared/assets/images.dart';
 
 import '../../../../design-system/app_colors.dart';
 import '../../../../shared/app_constants.dart';
 
-class ProfileView extends StatelessWidget {
+class ProfileView extends StatefulWidget {
   static const String path = '/profile';
   static const String name = 'profile';
 
-  const ProfileView({Key? key}) : super(key: key);
+  ProfileView({super.key});
+
+  @override
+  State<ProfileView> createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<ProfileView> {
+  late AuthenticationProvider authProvider;
+
+  @override
+  void initState() {
+    authProvider = context.read<AuthenticationProvider>();
+    authProvider.getCurrentUser();
+    super.initState();
+  }
 
   @override
   @override
@@ -68,10 +87,13 @@ class ProfileView extends StatelessWidget {
             ),
 
             SizedBox(height: 70.h),
-            Text('John Doe', style: TextStyles.inter20Semi),
+            Text(
+              authProvider.currentUser?.fullName ?? "",
+              style: TextStyles.inter20Semi,
+            ),
             Spacing.h4,
             Text(
-              'Marketing Manager',
+              authProvider.currentUser?.email ?? "",
               style: TextStyles.inter12Regular.copyWith(color: Colors.black54),
             ),
             SizedBox(height: 38.h),
@@ -95,7 +117,11 @@ class ProfileView extends StatelessWidget {
                   _buildActionTile(
                     icon: Icons.logout,
                     label: 'Log out',
-                    onTap: () {},
+                    onTap: () {
+                      authProvider.signOut((){
+                        context.pushReplacement(SignInView.path);
+                      });
+                    },
                   ),
                 ],
               ),

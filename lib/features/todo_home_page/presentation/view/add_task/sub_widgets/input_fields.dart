@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:todo/design-system/app_colors.dart';
 import 'package:todo/design-system/styles.dart';
+import 'package:todo/features/todo_home_page/presentation/provider/task_provider.dart';
 
 class InputFields extends StatelessWidget {
-  const InputFields();
+
+  const InputFields({
+    super.key,
+
+
+  });
 
   @override
   Widget build(BuildContext context) {
+    final provider= Provider.of<TaskProvider>(context, listen: false);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
           TextField(
+            controller: provider.titleController,
+
             decoration: InputDecoration(
               hintText: 'eg : Meeting with client',
               border: InputBorder.none,
@@ -23,6 +33,7 @@ class InputFields extends StatelessWidget {
             keyboardType: TextInputType.text,
           ),
           TextField(
+            controller: provider.descriptionController,
             decoration: InputDecoration(
               hintText: 'Description',
               border: InputBorder.none,

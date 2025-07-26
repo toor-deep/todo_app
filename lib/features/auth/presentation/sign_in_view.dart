@@ -1,9 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:todo/features/auth/presentation/provider/auth_provider.dart';
 import 'package:todo/features/auth/presentation/sign_up_view.dart';
 import 'package:todo/shared/assets/images.dart';
+import 'package:todo/shared/extensions/text_field_extensions.dart';
 
 import '../../../design-system/app_colors.dart';
 import '../../../design-system/styles.dart';
@@ -11,6 +15,7 @@ import '../../../shared/app_constants.dart';
 import '../../../shared/app_icons.dart';
 import '../../../shared/widgets/elevated_button.dart';
 import '../../../shared/widgets/text_field.dart';
+import '../../bottom_bar/bottom_screen_view.dart';
 
 class SignInView extends StatefulWidget {
   static const String path = '/sign-in';
@@ -23,6 +28,17 @@ class SignInView extends StatefulWidget {
 }
 
 class _SignInViewState extends State<SignInView> {
+  final formKey = GlobalKey<FormState>();
+  late AuthenticationProvider authProvider;
+  final TextEditingController passController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+
+  @override
+  void initState() {
+    authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,43 +93,63 @@ class _SignInViewState extends State<SignInView> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Spacing.h24,
-              _login(),
-              Spacing.h24,
-              TextFieldClass(label: 'Email'),
-              Spacing.h16,
-              TextFieldClass(label: 'Password', isPassword: true),
-              Spacing.h16,
-              _rememberAndForgot(),
-              Spacing.h24,
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Spacing.h24,
+                _login(),
+                Spacing.h24,
+                TextFieldClass(
+                  label: 'Email',
+                  controller: emailController,
+                  validator: (value) => value?.isValidEmail(),
+                ),
+                Spacing.h16,
+                TextFieldClass(
+                  label: 'Password',
+                  controller: passController,
+                  isPassword: true,
+                  validator: (value) => value?.validatePassword(),
+                ),
+                Spacing.h16,
+                _rememberAndForgot(),
+                Spacing.h24,
 
-              AppElevatedButton(
-                text: 'Login',
-                backgroundColor: kPrimaryColor,
-                onPressed: () {},
-              ),
-              Spacing.h24,
-              Row(
-                children: [
-                  Expanded(
-                    child: Divider(thickness: 1, color: Colors.grey.shade300),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text('Or', style: TextStyle(color: Colors.grey)),
-                  ),
-                  Expanded(
-                    child: Divider(thickness: 1, color: Colors.grey.shade300),
-                  ),
-                ],
-              ),
-              Spacing.h24,
+                Consumer<AuthenticationProvider>(
+                  builder: (context, value, child) => AppElevatedButton(
+                    text: 'Login',
+                    widget: value.isLoading
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : null,
 
-              _outlinedButton(),
-            ],
+                    backgroundColor: kPrimaryColor,
+                    onPressed: () {
+                      _handleSignIn();
+                    },
+                  ),
+                ),
+                Spacing.h24,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Divider(thickness: 1, color: Colors.grey.shade300),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text('Or', style: TextStyle(color: Colors.grey)),
+                    ),
+                    Expanded(
+                      child: Divider(thickness: 1, color: Colors.grey.shade300),
+                    ),
+                  ],
+                ),
+                Spacing.h24,
+
+                _outlinedButton(),
+              ],
+            ),
           ),
         ),
       ),
@@ -207,6 +243,18 @@ class _SignInViewState extends State<SignInView> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _handleSignIn() async {
+    if (!formKey.currentState!.validate()) return;
+
+    authProvider.signIn(
+      emailController.text.trim(),
+      passController.text.trim(),
+      () {
+        context.pushNamed(BottomNavBar.name);
+      },
     );
   }
 }

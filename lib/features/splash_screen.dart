@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/design-system/app_colors.dart';
+import 'package:todo/features/auth/presentation/provider/auth_provider.dart';
 import 'package:todo/features/on_boarding/on_boarding_view.dart';
 import 'package:todo/shared/app_icons.dart';
 import '../design-system/styles.dart';
@@ -22,9 +25,20 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(milliseconds: 2000), () {
-      context.pushNamed(OnboardingScreen.name);
-    });
+    _checkLoginState();
+  }
+
+  Future<void> _checkLoginState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (isLoggedIn) {
+      context.goNamed(BottomNavBar.name);
+    } else {
+      context.goNamed(OnboardingScreen.name);
+    }
   }
 
   @override

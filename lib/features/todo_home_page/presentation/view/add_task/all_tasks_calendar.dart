@@ -3,11 +3,23 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:todo/design-system/app_colors.dart';
+import 'package:todo/design-system/styles.dart';
+import 'package:todo/features/todo_home_page/domain/entity/task_entity.dart';
+import 'package:todo/features/todo_home_page/presentation/view/utils/task_utils.dart';
 
 import '../../../../../shared/app_constants.dart';
 
 class AllTasksCalendarScreen extends StatefulWidget {
-  const AllTasksCalendarScreen({Key? key}) : super(key: key);
+  final DateTime? selectedDay;
+  final Function(DateTime) onDateChanged;
+  final List<TaskEntity> tasks;
+
+  const AllTasksCalendarScreen({
+    Key? key,
+    required this.onDateChanged,
+    required this.tasks,
+    this.selectedDay,
+  }) : super(key: key);
 
   @override
   State<AllTasksCalendarScreen> createState() => _AllTasksCalendarScreenState();
@@ -17,53 +29,27 @@ class _AllTasksCalendarScreenState extends State<AllTasksCalendarScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
-  final Map<DateTime, List<Map<String, dynamic>>> _tasks = {
-    DateTime(2024, 4, 18): [
-      {
-        "priority": "High",
-        "title": "Interview with Alex",
-        "time": "10:30 AM",
-        "type": "To-Do",
-        "color": Colors.red,
-      },
-      {
-        "priority": "Medium",
-        "title": "Marketing Strategy",
-        "time": "11:30 AM",
-        "type": "To-Do",
-        "color": Colors.orange,
-      },
-    ],
-    DateTime(2024, 4, 19): [
-      {
-        "priority": "Low",
-        "title": "Product Meeting",
-        "time": "08:30 AM",
-        "type": "To-Do",
-        "color": Colors.green,
-      },
-    ],
-  };
+  @override
+  void initState() {
+    if (widget.selectedDay != null) {
+      _selectedDay = widget.selectedDay;
 
-  List<Map<String, dynamic>> getTasksForDay(DateTime day) {
-    return _tasks[DateTime(day.year, day.month, day.day)] ?? [];
+    }
+    super.initState();
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
-    final tasks = getTasksForDay(_selectedDay ?? _focusedDay);
-
     return Column(
       children: [
         _buildCalendar(),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 18),
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
               DateFormat('dd MMMM yyyy').format(_selectedDay ?? _focusedDay),
-              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              style: TextStyles.inter18Semi
             ),
           ),
         ),
@@ -75,10 +61,12 @@ class _AllTasksCalendarScreenState extends State<AllTasksCalendarScreen> {
     return TableCalendar(
       firstDay: DateTime.utc(2020),
       lastDay: DateTime.utc(2030),
+      rowHeight: 100.h,
       focusedDay: _focusedDay,
       selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
       startingDayOfWeek: StartingDayOfWeek.monday,
       headerVisible: true,
+
       calendarFormat: CalendarFormat.week,
       headerStyle: HeaderStyle(
         formatButtonVisible: false,
@@ -89,14 +77,15 @@ class _AllTasksCalendarScreenState extends State<AllTasksCalendarScreen> {
         setState(() {
           _selectedDay = selectedDay;
           _focusedDay = focusedDay;
+          widget.onDateChanged(_selectedDay ?? DateTime.now());
         });
       },
       daysOfWeekVisible: false,
       calendarStyle: CalendarStyle(
         outsideDaysVisible: false,
         defaultTextStyle: TextStyle(fontSize: 14.sp),
-        todayDecoration: const BoxDecoration(
-          color: Colors.grey,
+        todayDecoration:  BoxDecoration(
+          color: isSameDay(_selectedDay, DateTime.now())? kPrimaryColor : kContainerBgColor,
           shape: BoxShape.circle,
         ),
         selectedDecoration: const BoxDecoration(
@@ -117,56 +106,83 @@ class _AllTasksCalendarScreenState extends State<AllTasksCalendarScreen> {
       ),
     );
   }
-  Widget _buildDayCell(DateTime day, {bool isSelected = false, bool isToday = false}) {
-    final tasksForThisDay = getTasksForDay(day);
-    final hasTask =true;
 
-    final dayAbbr = DateFormat.E().format(day); // e.g., Mon
+  Widget _buildDayCell(
+    DateTime day, {
+    bool isSelected = false,
+    bool isToday = false,
+  }) {
+    final dayAbbr = DateFormat.E().format(day);
     final dayNum = day.day.toString();
+
+    final shouldHighlightAsToday = isToday && !isSelected;
 
     final bgColor = isSelected
         ? kPrimaryColor
-        : isToday
-        ? kPrimaryColor
+        : shouldHighlightAsToday
+        ? kContainerBgColor
         : kGreyWhiteColor;
 
-    final textColor = isSelected || isToday ? Colors.white : Colors.black;
+    final textColor = isSelected || shouldHighlightAsToday
+        ? Colors.white
+        : Colors.black;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 50.w,
-          // height: 80.h,
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(0.0),
+    return SizedBox(
+      height: 120.h,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 50.w,
+            height: 80.h,
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 6),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(dayAbbr, style: TextStyle(color: textColor, fontSize: 12.sp)),
-                 Spacing.h4,
-                Text(dayNum, style: TextStyle(color: textColor, fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                Text(
+                  dayAbbr,
+                  style: TextStyle(color: textColor, fontSize: 12.sp),
+                ),
+                Spacing.h4,
+                Text(
+                  dayNum,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
           ),
-        ),
-        Spacing.h4,
-        if (hasTask)
-          Container(
-            width: 6.w,
-            height: 6.w,
-            decoration: const BoxDecoration(
-              color: kPrimaryColor,
-              shape: BoxShape.circle,
+          Spacing.h4,
+
+          if (day == _selectedDay) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: widget.tasks
+                  .map(
+                    (task) => Container(
+                      margin: EdgeInsets.symmetric(horizontal: 1.5.w),
+                      width: 6.w,
+                      height: 6.w,
+                      decoration: BoxDecoration(
+                        color:
+                            task.taskPriority.getPriority?.getColor ??
+                            Colors.transparent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
-          ),
-      ],
+          ],
+        ],
+      ),
     );
   }
-
-
 }

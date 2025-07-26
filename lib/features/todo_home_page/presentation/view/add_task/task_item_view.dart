@@ -1,20 +1,26 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:todo/design-system/app_colors.dart';
 import 'package:todo/design-system/styles.dart';
+import 'package:todo/features/todo_home_page/presentation/provider/task_provider.dart';
 import 'package:todo/features/todo_home_page/presentation/view/add_task/success_dialog.dart';
 import 'package:todo/features/todo_home_page/presentation/view/utils/task_utils.dart';
 import 'package:todo/shared/widgets/elevated_button.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../shared/app_constants.dart';
+import '../../../domain/entity/task_entity.dart';
 
 class TaskItemView extends StatelessWidget {
-  final TaskData taskData;
+  final TaskEntity taskData;
+  final bool? isCalendarViewItem;
   final Function(bool) onEdit;
 
-  const TaskItemView({Key? key, required this.taskData, required this.onEdit}) : super(key: key);
+  const TaskItemView({Key? key, required this.taskData,this.isCalendarViewItem, required this.onEdit}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,63 +33,64 @@ class TaskItemView extends StatelessWidget {
   }
 
   Widget _container(BuildContext context) {
-    return Container(
-      height: 41.h,
+    return Skeleton.leaf(
+      enabled: true,
+      child: Container(
+        height: 41.h,
 
-      decoration: BoxDecoration(
-        color: taskData.taskPriority.getPriority?.getColor,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(8),
-          topRight: Radius.circular(8),
+        decoration: BoxDecoration(
+          color: taskData.taskPriority.getPriority?.getColor,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(8),
+            topRight: Radius.circular(8),
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              spacing: 4.w,
-              children: [
-                Icon(Icons.flag_outlined, color: Colors.white, size: 16),
-                Text(
-                  taskData.taskPriority,
-                  style: TextStyles.inter12Regular.copyWith(
-                    color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                spacing: 4.w,
+                children: [
+                  Icon(Icons.flag_outlined, color: Colors.white, size: 16),
+                  Text(
+                    taskData.taskPriority,
+                    style: TextStyles.inter12Regular.copyWith(
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                // Icon(
-                //   taskData.taskPriority.getPriority?.getIcon,
-                //   size: 16,
-                // ),
-              ],
-            ),
-            GestureDetector(
-              onTapDown: (TapDownDetails details) {
-                _showPopupMenu(context, details.globalPosition);
-              },
-              child: Icon(Icons.more_horiz, color: Colors.white),
-            )
 
-          ],
+                ],
+              ),
+              InkWell(
+                onTapDown: (TapDownDetails details) {
+                  _showPopupMenu(context, details.globalPosition);
+                },
+                child: Icon(Icons.more_horiz, color: Colors.white),
+              )
+
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _column() {
-    final parsedDate = DateTime.parse(taskData.taskDate); // your string must be in ISO 8601 format
+    final parsedDate = DateTime.parse(taskData.dueDate);
     final formattedDate = DateFormat('EEE, dd MMM yyyy').format(parsedDate);
 
     return Padding(
       padding: const EdgeInsets.all(18.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _row(),
           Spacing.h8,
           Text(
-            "Plan questions, capture insights, and document key takeaways.",
+            taskData.description,
             style: TextStyles.inter12Regular.copyWith(color: kLightGreyColor),
           ),
           Spacing.h12,
@@ -98,7 +105,7 @@ class TaskItemView extends StatelessWidget {
                 spacing: 4.w,
                 children: [
                   Icon(Icons.timer_sharp, color: kGreyDarkColor, size: 20),
-                  Text(taskData.taskTime, style: TextStyles.inter13Regular),
+                  Text(taskData.dueTime, style: TextStyles.inter13Regular),
                 ],
               ),
               Text(
@@ -120,43 +127,47 @@ class TaskItemView extends StatelessWidget {
         Expanded(
           child: Row(
             children: [
-              Container(
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: taskData.taskPriority.getPriority!.getColor,
-                  ),
-                ),
-                alignment: Alignment.center,
+              Skeleton.leaf(
                 child: Container(
-                  height: 6.h,
-                  width: 6.w,
+                  height: 20,
+                  width: 20,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: taskData.taskPriority.getPriority?.getColor,
+                    border: Border.all(
+                      color: taskData.taskPriority.getPriority!.getColor,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Container(
+                    height: 6.h,
+                    width: 6.w,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: taskData.taskPriority.getPriority?.getColor,
+                    ),
                   ),
                 ),
               ),
               Spacing.w8,
               Expanded(
                 child: Text(
-                  taskData.taskName,
+                  taskData.title,
                   style: TextStyles.inter18Semi.copyWith(color: Colors.black),
                 ),
               ),
             ],
           ),
         ),
-        AppElevatedButton(
-          height: 26.h,
-          width: 78.w,
-          radius: 50,
-          textStyle: TextStyles.inter12Regular.copyWith(color: Colors.white),
-          text: taskData.isCompleted ? "Completed" : "To-Do",
-          onPressed: () {},
-          backgroundColor: taskData.isCompleted ? kGreenAccent : kBlueColor,
+        Skeleton.leaf(
+          child: AppElevatedButton(
+            height: 26.h,
+            width: 78.w,
+            radius: 50,
+            textStyle: TextStyles.inter12Regular.copyWith(color: Colors.white),
+            text: taskData.isCompleted ? "Completed" : "To-Do",
+            onPressed: () {},
+            backgroundColor: taskData.isCompleted ? kGreenAccent : kBlueColor,
+          ),
         ),
       ],
     );
@@ -189,12 +200,18 @@ class TaskItemView extends StatelessWidget {
         ),
         PopupMenuItem<String>(
           value: 'delete',
-          child: Row(
-            children: [
-              Icon(CupertinoIcons.delete, color: kRedColor,size: 16,),
-              Spacing.w8,
-              Text('Delete'),
-            ],
+          child: InkWell(
+            onTap: (){
+              context.read<TaskProvider>().deleteTask(taskData.id??"",isCalendarViewItem??false);
+              context.pop();
+            },
+            child: Row(
+              children: [
+                Icon(CupertinoIcons.delete, color: kRedColor,size: 16,),
+                Spacing.w8,
+                Text('Delete'),
+              ],
+            ),
           ),
         ),
       ],

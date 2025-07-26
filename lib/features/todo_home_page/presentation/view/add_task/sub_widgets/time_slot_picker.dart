@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:todo/design-system/app_colors.dart';
 import 'package:todo/design-system/styles.dart';
 import 'package:todo/shared/widgets/elevated_button.dart';
 import 'package:todo/shared/app_constants.dart';
 
 import 'package:intl/intl.dart';
+
+import 'bottom_icons.dart';
 
 class TimeSlotPickerBottomSheet extends StatefulWidget {
   final DateTime selectedDate;
@@ -24,6 +27,7 @@ class TimeSlotPickerBottomSheet extends StatefulWidget {
 
 class _TimeSlotPickerBottomSheetState extends State<TimeSlotPickerBottomSheet> {
   String? _selectedTime;
+  String? _confirmedTime;
   bool _use24hFormat = false;
 
   List<DateTime> _generateTimeSlots() {
@@ -173,9 +177,14 @@ class _TimeSlotPickerBottomSheetState extends State<TimeSlotPickerBottomSheet> {
                     ),
                     text: "Next",
                     onPressed: () {
-                      Navigator.pop(context);
-                      widget.onNext(_selectedTime!);
+                      if(_confirmedTime==null) return;
+
+                      widget.onNext(_confirmedTime!);
+
+
+
                     },
+
                   ),
                 ),
               ],
@@ -206,8 +215,10 @@ class _TimeSlotPickerBottomSheetState extends State<TimeSlotPickerBottomSheet> {
             textStyle: TextStyles.inter16Regular.copyWith(color: Colors.white),
             text: "Confirm",
             onPressed: () {
-              Navigator.pop(context);
-              widget.onNext(_selectedTime!);
+              setState(() {
+                _confirmedTime = time;
+                _selectedTime = time;
+              });
             },
           ),
         ),
@@ -275,35 +286,56 @@ class _TimeSlotPickerBottomSheetState extends State<TimeSlotPickerBottomSheet> {
       itemBuilder: (context, index) {
         final time = _formatTime(slots[index]);
         final isSelected = _selectedTime == time;
+        final isConfirmed = _confirmedTime == time;
 
         return Padding(
           padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 16.w),
           child: Column(
             children: [
-              if (!isSelected) ...[
+              if (isSelected && !isConfirmed)
+                _confirm(time)
+              else if (isConfirmed)
+                Container(
+                  height: 48.h,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: kLightGreyColor),
+                  ),
+                  child: Text(
+                    time,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                )
+              else
                 InkWell(
                   onTap: () {
-                    setState(() => _selectedTime = time);
+                    setState(() {
+                      _selectedTime = time;
+                      _confirmedTime = null;
+                    });
                   },
                   child: Container(
                     height: 48.h,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: isSelected ? kPrimaryColor : kContainerBgColor,
+                      color: kContainerBgColor,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: kLightGreyColor),
                     ),
                     child: Text(
                       time,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
+                        color: Colors.black,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
-              ],
-              if (isSelected) _confirm(time),
             ],
           ),
         );
