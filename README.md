@@ -1,16 +1,47 @@
-# todo
+# ✅ To-Do– Smart To-Do App (Flutter)
 
-A new Flutter project.
+**To-Do** is a modern Flutter-based to-do app built with offline-first capabilities, Google Sign-In,
+Firebase backend, and a clean, maintainable architecture. It enables users to create, manage, and
+search tasks by date, name, or priority — even when offline.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Features
 
-A few resources to get you started if this is your first Flutter project:
+- 🔐 Google Sign-In for authentication
+- 🔄 Three-layer Clean Architecture
+- ☁️ Firebase Firestore for remote database
+- 💾 Hive for local storage and offline access
+- 🔔 Local & Push Notifications
+- 🗓️ Date-based task view
+- 🔍 Name-based search
+- ⚙️ Priority-based filtering
+- 🧠 State management using Provider
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## ⚙️ Setup Instructions
+
+### 1. Unzip the Project
+
+Extract the zipped project folder to your development directory.
+
+### 2. Install Flutter Packages
+
+Run the following in your terminal:
+
+flutter pub get
+
+Major three layer architecture:
+
+lib/
+├── data/         # Handles Firebase, Hive, API access
+├── domain/       # Core business logic, entities, and repositories,usecase
+├── presentation/ # UI layer, widgets, providers
+
+
+The app supports offline task creation, viewing, and editing via Hive.
+
+Syncs seamlessly with Firestore when network is available.
+
+Uses Provider for dependency injection and state management.
