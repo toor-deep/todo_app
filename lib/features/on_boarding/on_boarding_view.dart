@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:todo/design-system/app_colors.dart';
 import 'package:todo/design-system/styles.dart';
+import 'package:todo/features/auth/presentation/sign_in_view.dart';
 
 import '../../shared/app_constants.dart';
 import '../../shared/assets/images.dart';
@@ -106,7 +107,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 TextButton(
                   onPressed: () {
-                    context.goNamed(SignUpView.name);
+                    context.goNamed(SignInView.name);
                   },
                   child:  Text("Skip",style: TextStyles.inter16Regular.copyWith(color: Colors.black),),
                 ),
@@ -119,7 +120,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         curve: Curves.easeInOut,
                       );
                     } else {
-                      context.goNamed(SignUpView.name);
+                      context.goNamed(SignInView.name);
                     }
                   },
                   child: CircularIconButton(

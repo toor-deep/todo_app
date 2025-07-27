@@ -38,4 +38,8 @@ class AuthUseCase {
   Future<Either<Failure, AuthUser>> getCurrentUser() {
     return repository.getCurrentUser();
   }
+
+  Future<Either<Failure, AuthUser>> signInWithGoogle() {
+    return repository.signInWithGoogle();
+  }
 }

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todo/features/auth/data/models/auth_user_model.dart';
 import '../../../../core/api/api_url.dart';
 import '../../../../core/errors/auth_errors.dart';
@@ -22,6 +25,8 @@ abstract class AuthDataSource {
   Future<Either<Failure, void>> signOut();
 
   Future<Either<Failure, AuthUserModel>> getCurrentUser();
+
+  Future<Either<Failure, AuthUserModel>> signInWithGoogle();
 }
 
 class AuthDataSourceImpl implements AuthDataSource {
@@ -56,10 +61,12 @@ class AuthDataSourceImpl implements AuthDataSource {
 
       return right(authUser);
     } on FirebaseAuthException catch (e) {
+      print(e);
       final message = getMessageFromErrorCode(e.code);
 
       return left(ServerFailure(message: message));
     } catch (e) {
+      print(e);
       return left(ServerFailure(message: e.toString()));
     }
   }
@@ -124,7 +131,53 @@ class AuthDataSourceImpl implements AuthDataSource {
       final authUser = AuthUserModel.fromMap(doc.data()!);
       return right(authUser);
     } catch (e) {
-      return left(ServerFailure(message: 'Failed to fetch current user: ${e.toString()}'));
+      return left(
+        ServerFailure(message: 'Failed to fetch current user: ${e.toString()}'),
+      );
+    }
+  }
+
+  @override
+  Future<Either<Failure, AuthUserModel>> signInWithGoogle() async {
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+      if (googleUser == null) {
+        return left(ServerFailure(message: 'User cancelled Google Sign-In'));
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
+
+      final user = userCredential.user;
+
+      if (user == null) {
+        return left(
+          ServerFailure(message: 'Firebase user is null after sign-in'),
+        );
+      }
+
+      final AuthUserModel authUser = AuthUserModel(
+        uid: user.uid,
+        email: user.email ?? '',
+        fullName: user.displayName ?? '',
+        dateOfBirth: '',
+      );
+
+      return right(authUser);
+    } catch (e) {
+      return left(
+        ServerFailure(message: 'Google Sign-In Error: ${e.toString()}'),
+      );
     }
   }
 }

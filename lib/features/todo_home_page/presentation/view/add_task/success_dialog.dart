@@ -7,6 +7,7 @@ import 'package:todo/features/todo_home_page/domain/entity/task_entity.dart';
 import 'package:todo/features/todo_home_page/presentation/provider/task_provider.dart';
 import 'package:todo/shared/extensions/date_extensions.dart';
 import '../../../../../shared/app_constants.dart';
+import '../../../../../shared/network_provider/network_provider.dart';
 import '../../../../../shared/widgets/elevated_button.dart';
 import '../../../../notifications/notification_service.dart';
 
@@ -49,7 +50,9 @@ class AddTaskSuccessDialog {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: TextStyles.inter12Regular.copyWith(color: kLightGreyColor),
+                  style: TextStyles.inter12Regular.copyWith(
+                    color: kLightGreyColor,
+                  ),
                 ),
               ),
               Spacing.h16,
@@ -97,8 +100,8 @@ class AddTaskSuccessDialog {
     );
   }
 
-
-static Widget _buttonRow(BuildContext context,TaskEntity data) {
+  static Widget _buttonRow(BuildContext context, TaskEntity data) {
+    final taskProvider = context.read<TaskProvider>();
     return Row(
       children: [
         Expanded(
@@ -120,27 +123,54 @@ static Widget _buttonRow(BuildContext context,TaskEntity data) {
                 textStyle: TextStyles.inter16Regular.copyWith(
                   color: Colors.white,
                 ),
-                widget:  value.isLoading? CircularProgressIndicator(color: Colors.white,):null,
+                widget: value.isLoading
+                    ? CircularProgressIndicator(color: Colors.white)
+                    : null,
 
                 text: "Save",
                 onPressed: () {
-                  context.read<TaskProvider>().addTask(
-                    TaskEntity(
-                      title: data.title,
-                      description: data.description,
-                      taskPriority: data.taskPriority,
-                      dueDate: data.dueDate,
-                      dueTime: data.dueTime,
-                    ),
-                      (){
+                  final isConnected = context
+                      .read<ConnectivityProvider>()
+                      .isConnected;
+                  print("isconnected $isConnected");
+                  if (isConnected) {
+                    taskProvider.addTask(
+                      TaskEntity(
+                        title: data.title,
+                        description: data.description,
+                        taskPriority: data.taskPriority,
+                        dueDate: data.dueDate,
+                        dueTime: data.dueTime,
+                      ),
+                      () {
                         NotificationService.showLocalNotification(
                           title: '✅ Task Created',
-                          body: 'Your new task "${data.title}" has been created!',
+                          body:
+                              'Your new task "${data.title}" has been created!',
                         );
-
-                      }
-
-                  );
+                      },
+                    );
+                  } else {
+                    taskProvider.addLocalTask(
+                      TaskEntity(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        title: data.title,
+                        description: data.description,
+                        taskPriority: data.taskPriority,
+                        dueDate: data.dueDate,
+                        dueTime: data.dueTime,
+                        syncAction: 'create',
+                        isSynced: false
+                      ),
+                      () {
+                        NotificationService.showLocalNotification(
+                          title: '✅ Task Created',
+                          body:
+                              'Your new task "${data.title}" has been created!',
+                        );
+                      },
+                    );
+                  }
                   Navigator.pop(context);
                 },
               ),
@@ -151,4 +181,3 @@ static Widget _buttonRow(BuildContext context,TaskEntity data) {
     );
   }
 }
-

@@ -1,22 +1,28 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:todo/features/auth/domain/usecase/auth.usecase.dart';
+import 'package:todo/features/auth/domain/usecase/auth_local.usecase.dart';
 import 'package:todo/shared/toast_alert.dart';
 
-import '../../../../core/database/shared_preferences.dart';
+import '../../data/models/hive/user_local_model.dart';
 import '../../domain/entity/auth_entity.dart';
 
 class AuthenticationProvider with ChangeNotifier {
   final AuthUseCase authUseCase;
+  final LocalAuthUseCase localAuthUseCase;
 
-  AuthenticationProvider({required this.authUseCase}){
+  AuthenticationProvider({
+    required this.authUseCase,
+    required this.localAuthUseCase,
+  }) {
     init();
   }
+
   Future<void> init() async {
     currentUser = await getCurrentUser();
     notifyListeners();
   }
-
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -58,10 +64,10 @@ class AuthenticationProvider with ChangeNotifier {
           showSnackbar(l.message, color: Colors.red);
           _setLoading(false);
         },
-        (r) {
+        (r) async {
           _setLoading(false);
           _setError(null);
-          saveLoginState(isLoggedIn: true);
+          await localAuthUseCase.saveLoginState(true);
           onSuccess();
           showSnackbar("Registration successful!", color: Colors.green);
         },
@@ -87,7 +93,7 @@ class AuthenticationProvider with ChangeNotifier {
         (r) async {
           _setLoading(false);
           _setError(null);
-          await saveLoginState(isLoggedIn: true);
+          await localAuthUseCase.saveLoginState(true);
           onSuccess();
           showSnackbar("Login successful!", color: Colors.green);
         },
@@ -98,12 +104,37 @@ class AuthenticationProvider with ChangeNotifier {
     }
   }
 
+  Future<void> signInWithGoogle(Function onSuccess) async {
+    try {
+      final response = await authUseCase.signInWithGoogle();
+      response.fold(
+        (l) {
+          print(l.message);
+
+          showSnackbar(l.message, color: Colors.red);
+          _setLoading(false);
+        },
+        (r) async {
+          _setLoading(false);
+          _setError(null);
+          await localAuthUseCase.saveLoginState(true);
+          onSuccess();
+          showSnackbar("Login successful!", color: Colors.green);
+        },
+      );
+    } catch (e) {
+      print(e);
+      showSnackbar(e.toString(), color: Colors.red);
+      _setLoading(false);
+    }
+  }
+
   Future<void> signOut(Function onSuccess) async {
     await authUseCase.signOut();
     onSuccess();
-    await clearLoginState();
+    await localAuthUseCase.logout();
 
-    showSnackbar("Logged out successfully!",color: Colors.green);
+    showSnackbar("Logged out successfully!", color: Colors.green);
     notifyListeners();
   }
 
@@ -117,12 +148,32 @@ class AuthenticationProvider with ChangeNotifier {
       },
       (authUser) {
         currentUser = authUser;
-        if(onSuccess!=null){
-        onSuccess();}
+        if (onSuccess != null) {
+          onSuccess();
+        }
         return authUser;
       },
     );
   }
 
+  Future<void> saveUserLocally(AuthUser user) async {
+    final userBox = Hive.box<User>('userBox');
+    final localUser = userFromEntity(user);
+    await userBox.put('currentUser', localUser);
+  }
 
+  AuthUser? getLocalUser() {
+    final userBox = Hive.box<User>('userBox');
+    final localUser = userBox.get('currentUser');
+    return localUser?.toEntity();
+  }
+
+  Future<void> clearLocalUser() async {
+    final userBox = Hive.box<User>('userBox');
+    await userBox.delete('currentUser');
+  }
+
+  Future<bool> isUserLoggedIn() async {
+    return await localAuthUseCase.isLoggedIn();
+  }
 }

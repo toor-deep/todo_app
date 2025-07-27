@@ -1,13 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:todo/features/todo_home_page/domain/entity/task_entity.dart';
 import 'package:todo/features/todo_home_page/domain/usecase/task.usecase.dart';
+import 'package:todo/features/todo_home_page/domain/usecase/task_local.usecase.dart';
 import 'package:todo/shared/toast_alert.dart';
 
 class TaskProvider extends ChangeNotifier {
   final TaskUseCase taskUseCase;
+  final TaskLocalUseCase taskLocalUseCase;
 
-  TaskProvider({required this.taskUseCase});
+  TaskProvider({required this.taskUseCase, required this.taskLocalUseCase});
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -17,7 +20,6 @@ class TaskProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   List<TaskEntity> _constTasksList = [];
-
 
   List<TaskEntity> _tasks = [];
   List<TaskEntity> _searchedTasks = [];
@@ -49,22 +51,24 @@ class TaskProvider extends ChangeNotifier {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
 
-  Future<void> addTask(TaskEntity task,Function onSuccess) async {
+  Future<void> addTask(TaskEntity task, Function onSuccess) async {
     try {
-      final userId=FirebaseAuth.instance.currentUser!.uid;
+      final userId = FirebaseAuth.instance.currentUser!.uid;
 
       setLoading(true);
-      final result = await taskUseCase.addTask(task,userId);
+      final result = await taskUseCase.addTask(task, userId);
       result.fold(
         (failure) {
           showSnackbar(failure.message, color: Colors.red);
           setLoading(false);
         },
-        (addedTask) {
+        (addedTask) async {
           _tasks.add(addedTask);
           showSnackbar('Task added successfully', color: Colors.green);
           setLoading(false);
           onSuccess();
+          await taskLocalUseCase.addTask(task);
+
           reset();
           notifyListeners();
         },
@@ -85,11 +89,16 @@ class TaskProvider extends ChangeNotifier {
           showSnackbar(failure.message, color: Colors.red);
           setLoading(false);
         },
-        (fetchedTasks) {
+        (fetchedTasks) async {
           _tasks = [];
-          _constTasksList=[];
+          _constTasksList = [];
           _constTasksList.addAll(fetchedTasks);
           _tasks.addAll(fetchedTasks);
+          await taskLocalUseCase.clearAllTasks();
+          for (final task in fetchedTasks) {
+            await taskLocalUseCase.addTask(task);
+          }
+
           setLoading(false);
           notifyListeners();
         },
@@ -103,10 +112,10 @@ class TaskProvider extends ChangeNotifier {
 
   Future<void> fetchTasksByDate(String date) async {
     try {
-      final userId=FirebaseAuth.instance.currentUser!.uid;
+      final userId = FirebaseAuth.instance.currentUser!.uid;
 
       setLoading(true);
-      final result = await taskUseCase.getTasksByDate(date,userId);
+      final result = await taskUseCase.getTasksByDate(date, userId);
       result.fold(
         (failure) {
           showSnackbar(failure.message, color: Colors.red);
@@ -128,10 +137,10 @@ class TaskProvider extends ChangeNotifier {
 
   Future<void> updateTask(TaskEntity task) async {
     try {
-      final userId=FirebaseAuth.instance.currentUser!.uid;
+      final userId = FirebaseAuth.instance.currentUser!.uid;
 
       setLoading(true);
-      final result = await taskUseCase.updateTask(task,userId);
+      final result = await taskUseCase.updateTask(task, userId);
       result.fold(
         (failure) {
           showSnackbar(failure.message, color: Colors.red);
@@ -156,10 +165,10 @@ class TaskProvider extends ChangeNotifier {
 
   Future<void> deleteTask(String taskId, bool isCalendarView) async {
     try {
-      final userId=FirebaseAuth.instance.currentUser!.uid;
+      final userId = FirebaseAuth.instance.currentUser!.uid;
 
       setLoading(true);
-      final result = await taskUseCase.deleteTask(taskId,userId);
+      final result = await taskUseCase.deleteTask(taskId, userId);
       result.fold(
         (failure) {
           showSnackbar(failure.message, color: Colors.red);
@@ -192,29 +201,93 @@ class TaskProvider extends ChangeNotifier {
   }
 
   void searchTasks(String query) {
-
-      _searchedTasks = _tasks.where((task) {
-        final lowerQuery = query.toLowerCase();
-        return task.title.toLowerCase().contains(lowerQuery);
-      }).toList();
-      _tasks.clear();
-      _tasks.addAll(_searchedTasks);
-      notifyListeners();
-
+    _searchedTasks = _tasks.where((task) {
+      final lowerQuery = query.toLowerCase();
+      return task.title.toLowerCase().contains(lowerQuery);
+    }).toList();
+    _tasks.clear();
+    _tasks.addAll(_searchedTasks);
+    notifyListeners();
   }
 
   void sortTasksByPriority(String priority) {
     if (priority.isEmpty) {
-      _tasks=[];
+      _tasks = [];
       _tasks.addAll(_constTasksList);
       notifyListeners();
       return;
     }
 
-
-    _tasks = _constTasksList.where((task) => task.taskPriority.toLowerCase() == priority.toLowerCase()).toList();
+    _tasks = _constTasksList
+        .where(
+          (task) => task.taskPriority.toLowerCase() == priority.toLowerCase(),
+        )
+        .toList();
     notifyListeners();
   }
 
+  // ---------------- LOCAL TASKS ---------------- //
 
+  Future<void> loadLocalTasks() async {
+    final tasks = await taskLocalUseCase.getAllTasks();
+    _tasks = tasks;
+    notifyListeners();
+  }
+
+  Future<void> addLocalTask(TaskEntity task, Function onSuccess) async {
+    await taskLocalUseCase.addTask(task);
+    _tasks.add(task);
+
+    onSuccess();
+    showSnackbar('Task added successfully', color: Colors.green);
+
+    reset();
+    await loadLocalTasks();
+  }
+
+  Future<void> deleteLocalTask(
+    String id, {
+    bool isCalendarView = false,
+    String? syncAction,
+  }) async {
+    await taskLocalUseCase.deleteTask(id);
+    if (isCalendarView) {
+      tasksOfDate.removeWhere((task) => task.id == id);
+    } else {
+      _tasks.removeWhere((t) => t.id == id);
+    }
+    showSnackbar('Task deleted successfully', color: Colors.green);
+
+    await loadLocalTasks();
+  }
+
+  // Future<void> syncPendingTasks(String userId) async {
+  //   final pendingTasks = await taskLocalUseCase.getUnsyncedTasks();
+  //
+  //   for (final task in pendingTasks) {
+  //     try {
+  //       switch (task.syncAction) {
+  //         case 'create':
+  //           await taskUseCase.addTask(task, userId);
+  //           break;
+  //         case 'update':
+  //           await taskUseCase.updateTask(task, userId);
+  //           break;
+  //         case 'delete':
+  //           await taskUseCase.deleteTask(task.id ?? "", userId);
+  //           break;
+  //       }
+  //
+  //       final updatedTask = task.copyWith(
+  //         isSynced: true,
+  //         syncAction: 'none',
+  //       );
+  //
+  //       await taskLocalUseCase.updateTask(updatedTask);
+  //
+  //     } catch (e) {
+  //       debugPrint('Sync failed for task ${task.id}: $e');
+  //     }
+  //   }
+  // }
 }

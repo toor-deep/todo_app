@@ -9,6 +9,7 @@ import 'package:todo/features/todo_home_page/data/repo_impl/task_repository_impl
 import 'package:todo/features/todo_home_page/domain/repository/task_repository.dart';
 import 'package:todo/features/todo_home_page/domain/usecase/task.usecase.dart';
 import 'package:todo/features/todo_home_page/presentation/provider/task_provider.dart';
+import 'package:todo/shared/network_provider/network_provider.dart';
 
 import '../../features/auth/presentation/provider/auth_provider.dart';
 
@@ -28,6 +29,7 @@ void injectDependencies() {
   getIt.registerSingleton(TaskUseCase(taskRepository: getIt()));
 
   //providers
-  getIt.registerSingleton(AuthenticationProvider(authUseCase: getIt()));
-  getIt.registerSingleton(TaskProvider(taskUseCase: getIt()));
+  getIt.registerSingleton(AuthenticationProvider(authUseCase: getIt(),localAuthUseCase: getIt()));
+  getIt.registerSingleton(TaskProvider(taskUseCase: getIt(),taskLocalUseCase: getIt()));
+  getIt.registerSingleton(ConnectivityProvider());
 }

@@ -1,30 +1,52 @@
-import '../../domain/entity/task_entity.dart';
+import 'package:hive/hive.dart';
 
-class TaskModel {
+import '../../../domain/entity/task_entity.dart';
+
+part 'task_local_model.g.dart';
+
+@HiveType(typeId: 2)
+class TaskLocalModel extends HiveObject {
+  @HiveField(0)
   final String id;
-  final String title;
-  final String taskPriority;
-  final String dueDate;
-  final String description;
-  final String dueTime;
-  final bool isCompleted;
-  final bool isSynced;
-  final String? syncAction;
 
-  const TaskModel({
+  @HiveField(1)
+  final String title;
+
+  @HiveField(2)
+  final String taskPriority;
+
+  @HiveField(3)
+  final String dueDate;
+
+  @HiveField(4)
+  final String description;
+
+  @HiveField(5)
+  final String dueTime;
+
+  @HiveField(6)
+  final bool isCompleted;
+
+  @HiveField(7)
+  final bool isSynced;
+
+  @HiveField(8)
+  final String syncAction;
+
+   TaskLocalModel({
     required this.id,
     required this.title,
     required this.taskPriority,
     required this.dueDate,
     required this.description,
     required this.dueTime,
+    this.syncAction = 'none',
     this.isCompleted = false,
     this.isSynced = false,
-    this.syncAction,
   });
 
-  factory TaskModel.fromMap(Map<String, dynamic> map) {
-    return TaskModel(
+  factory TaskLocalModel.fromMap(Map<String, dynamic> map) {
+    return TaskLocalModel(
       id: map['id'] ?? '',
       title: map['title'] ?? '',
       taskPriority: map['taskPriority'] ?? '',
@@ -32,7 +54,7 @@ class TaskModel {
       description: map['description'] ?? '',
       dueTime: map['createdAt'],
       isCompleted: map['isCompleted'] ?? false,
-      isSynced: map['isSynced'] ?? false,
+      isSynced: map['isSynced'] ?? true,
       syncAction: map['syncAction'] ?? 'none',
     );
   }
@@ -47,11 +69,10 @@ class TaskModel {
       'createdAt': dueTime,
       'isCompleted': isCompleted,
       'isSynced': isSynced,
-      'syncAction': syncAction ?? 'none',
+      'syncAction': syncAction,
     };
   }
 
-  /// Convert Model to Entity
   TaskEntity toEntity() {
     return TaskEntity(
       id: id,
@@ -63,24 +84,25 @@ class TaskModel {
       isCompleted: isCompleted,
       isSynced: isSynced,
       syncAction: syncAction,
+
     );
   }
 
-  /// Convert Entity to Model
-  factory TaskModel.fromEntity(TaskEntity entity) {
-    return TaskModel(
-      id: entity.id??"",
+  factory TaskLocalModel.fromEntity(TaskEntity entity) {
+    return TaskLocalModel(
+      id: entity.id ?? "",
       title: entity.title,
       taskPriority: entity.taskPriority,
       dueDate: entity.dueDate,
       description: entity.description,
       dueTime: entity.dueTime,
       isCompleted: entity.isCompleted,
-      isSynced: entity.isSynced??false,
-      syncAction: entity.syncAction,
+      isSynced: entity.isSynced??true,
+      syncAction: entity.syncAction??'none'
     );
   }
-  TaskModel copyWith({
+
+  TaskLocalModel copyWith({
     String? id,
     String? title,
     String? taskPriority,
@@ -89,9 +111,8 @@ class TaskModel {
     String? dueTime,
     bool? isCompleted,
     bool? isSynced,
-    String? syncAction,
   }) {
-    return TaskModel(
+    return TaskLocalModel(
       id: id ?? this.id,
       title: title ?? this.title,
       taskPriority: taskPriority ?? this.taskPriority,
@@ -100,7 +121,6 @@ class TaskModel {
       dueTime: dueTime ?? this.dueTime,
       isCompleted: isCompleted ?? this.isCompleted,
       isSynced: isSynced ?? this.isSynced,
-      syncAction: syncAction ?? this.syncAction,
     );
   }
 }

@@ -222,7 +222,13 @@ class _SignInViewState extends State<SignInView> {
       width: double.infinity,
       height: 48.h,
       child: OutlinedButton(
-        onPressed: () {},
+        onPressed: () {
+          authProvider.signInWithGoogle(
+            () {
+              context.pushNamed(BottomNavBar.name);
+            },
+          );
+        },
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: kContainerBgColor),
           padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),

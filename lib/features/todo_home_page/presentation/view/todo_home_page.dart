@@ -12,6 +12,7 @@ import 'package:todo/shared/extensions/date_extensions.dart';
 import 'package:todo/shared/widgets/elevated_button.dart';
 
 import '../../../../shared/app_constants.dart';
+import '../../../../shared/network_provider/network_provider.dart';
 import '../../../../shared/widgets/app_outlined_button.dart';
 import '../../domain/entity/task_entity.dart';
 import 'add_task/add_task_sheet.dart';
@@ -40,8 +41,15 @@ class _ToDoHomePageState extends State<ToDoHomePage> {
   void initState() {
     super.initState();
     taskProvider = context.read<TaskProvider>();
+    final connectivityProvider = context.read<ConnectivityProvider>();
+    final isConnected = connectivityProvider.isConnected;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      taskProvider.fetchTasks(userId);
+      if (isConnected) {
+        taskProvider.fetchTasks(userId);
+      } else {
+        taskProvider.loadLocalTasks();
+      }
     });
   }
 
@@ -146,8 +154,7 @@ class _ToDoHomePageState extends State<ToDoHomePage> {
         InkWell(
           onTap: () {
             showPriorityFilterBottomSheet(context, (priority) {
-                taskProvider.sortTasksByPriority(priority);
-
+              taskProvider.sortTasksByPriority(priority);
             });
           },
 

@@ -32,5 +32,10 @@ class AuthRepoImpl implements AuthRepository {
   return remoteDataSource.signUp(email: email, password: password, fullName: fullName, dateOfBirth: dateOfBirth);
   }
 
+  @override
+  Future<Either<Failure, AuthUser>> signInWithGoogle() {
+   return remoteDataSource.signInWithGoogle();
+  }
+
 
 }

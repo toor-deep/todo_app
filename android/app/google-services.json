@@ -12,7 +12,20 @@
           "package_name": "com.example.todo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "987048937275-254sdp732tj009447gdqfmu176q6196s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.todo",
+            "certificate_hash": "a8e53c600ecde4686543a48d0d0dbf884a0ea5d5"
+          }
+        },
+        {
+          "client_id": "987048937275-p9qas083rsn4lgektt6qll0d0n7hu5hk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBdFAolijGLhhufQcL-0bovCSf9c3_qfdU"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "987048937275-p9qas083rsn4lgektt6qll0d0n7hu5hk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "987048937275-8evjjfvrg8js2orepksbhn618pojqnak.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.todo"
+              }
+            }
+          ]
         }
       }
     },
@@ -31,7 +56,20 @@
           "package_name": "com.example.todo.todo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "987048937275-eim0l8m24efk5jut7isvar1uonasga22.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.todo.todo",
+            "certificate_hash": "a8e53c600ecde4686543a48d0d0dbf884a0ea5d5"
+          }
+        },
+        {
+          "client_id": "987048937275-p9qas083rsn4lgektt6qll0d0n7hu5hk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBdFAolijGLhhufQcL-0bovCSf9c3_qfdU"
@@ -39,7 +77,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "987048937275-p9qas083rsn4lgektt6qll0d0n7hu5hk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "987048937275-8evjjfvrg8js2orepksbhn618pojqnak.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.todo"
+              }
+            }
+          ]
         }
       }
     }

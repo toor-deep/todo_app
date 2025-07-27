@@ -9,6 +9,8 @@ class TaskEntity extends Equatable {
   final String description;
   final String dueTime;
   final bool isCompleted;
+  final bool? isSynced;
+  final String? syncAction;
 
   const TaskEntity({
      this.id,
@@ -18,6 +20,8 @@ class TaskEntity extends Equatable {
     required this.description,
     required this.dueTime,
     this.isCompleted = false,
+    this.isSynced = true,
+    this.syncAction,
   });
 
   @override
@@ -29,6 +33,8 @@ class TaskEntity extends Equatable {
     description,
     dueTime,
     isCompleted,
+    isSynced,
+    syncAction,
   ];
   TaskEntity copyWith({
     String? id,
@@ -38,6 +44,8 @@ class TaskEntity extends Equatable {
     String? description,
     String? dueTime,
     bool? isCompleted,
+    bool? isSynced,
+    String? syncAction,
   }) {
     return TaskEntity(
       id: id ?? this.id,
@@ -47,6 +55,8 @@ class TaskEntity extends Equatable {
       description: description ?? this.description,
       dueTime: dueTime ?? this.dueTime,
       isCompleted: isCompleted ?? this.isCompleted,
+      isSynced: isSynced ?? this.isSynced,
+      syncAction: syncAction ?? this.syncAction,
     );
   }
 
@@ -61,5 +71,7 @@ extension TaskEntityExtension on TaskModel{
     description: description,
     dueTime: dueTime,
     isCompleted: isCompleted,
+    isSynced: isSynced,
+    syncAction: syncAction,
   );
 }

@@ -32,6 +32,7 @@ class _NotificationsViewState extends State<NotificationsView> {
       builder: (context, value, child) {
         return  Scaffold(
           appBar: AppBar(
+            automaticallyImplyLeading: false,
             elevation: 0,
             title: Text(
               'Notifications',

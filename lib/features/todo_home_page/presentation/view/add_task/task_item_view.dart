@@ -13,6 +13,7 @@ import 'package:todo/shared/widgets/elevated_button.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../shared/app_constants.dart';
+import '../../../../../shared/network_provider/network_provider.dart';
 import '../../../domain/entity/task_entity.dart';
 
 class TaskItemView extends StatelessWidget {
@@ -202,7 +203,14 @@ class TaskItemView extends StatelessWidget {
           value: 'delete',
           child: InkWell(
             onTap: (){
-              context.read<TaskProvider>().deleteTask(taskData.id??"",isCalendarViewItem??false);
+              final taskProvider = context.read<TaskProvider>();
+              final isConnected = context.read<ConnectivityProvider>().isConnected;
+              if(isConnected){
+
+              taskProvider.deleteTask(taskData.id??"",isCalendarViewItem??false);}
+              else{
+                taskProvider.deleteLocalTask(taskData.id??"",syncAction: 'delete');
+              }
               context.pop();
             },
             child: Row(

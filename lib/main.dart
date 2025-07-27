@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:todo/config/injection/hive_injectors.dart' hide getIt;
 import 'package:todo/features/notifications/presentation/provider/notification_provider.dart';
 import 'package:todo/features/todo_home_page/presentation/provider/task_provider.dart';
+import 'package:todo/shared/network_provider/network_provider.dart';
 
 import 'config/injection/dependecy_injection.dart';
 import 'core/routing.dart';
@@ -23,19 +24,21 @@ Future<void> main() async {
   await NotificationService.init();
   await Hive.initFlutter();
 
+  await setupHiveInjection();
   injectDependencies();
-  setupHiveInjection();
+
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => BottomNavigationProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
         ChangeNotifierProvider(
-          create: (_) => AuthenticationProvider(authUseCase: getIt()),
+          create: (_) => AuthenticationProvider(authUseCase: getIt(),localAuthUseCase: getIt()),
         ),
         ChangeNotifierProvider(
-          create: (_) => TaskProvider(taskUseCase: getIt()),
+          create: (_) => TaskProvider(taskUseCase: getIt(),taskLocalUseCase: getIt()),
         ),
         ChangeNotifierProvider(
           create: (_) => NotificationProvider(notificationUseCase: getIt()),
