@@ -62,9 +62,10 @@ class _BottomActionsState extends State<BottomActions> {
                   FocusScope.of(context).unfocus();
 
                   if (_selectedDate == null) {
-                    context.pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Please select a date first.")),
+                    showToast(
+                      context,
+                      title: "Please select a date",
+                      description: "You must select a date before proceeding.",
                     );
                     return;
                   }
@@ -127,52 +128,49 @@ class _BottomActionsState extends State<BottomActions> {
           IconButton(
             onPressed: () {
               final provider = context.read<TaskProvider>();
+              if(provider.formKey.currentState!.validate()) {
+                if (_selectedDate == null) {
+                  showToast(
+                    context,
+                    title: "Please select a date",
+                    description: "You must select a date before proceeding.",
+                  );
+                  return;
+                }
 
-              if (_selectedDate == null) {
+                if (_selectedTime == null) {
+                  showToast(
+                    context,
+                    title: "Please select a time",
+                    description: "You must select a time before proceeding.",
+                  );
+                  return;
+                }
+
+                if (_selectedPriority == null) {
+                  showToast(
+                    context,
+                    title: "Please select a priority",
+                    description: "You must select a priority before proceeding.",
+                  );
+                  return;
+                }
+
                 context.pop();
-                showSnackbar("Please select a date");
-
-                return;
+                AddTaskSuccessDialog.show(
+                  context: context,
+                  taskData: TaskEntity(
+                    title: provider.titleController.text,
+                    description: provider.descriptionController.text,
+                    dueDate: _selectedDate!
+                        .toIso8601String()
+                        .split('T')
+                        .first,
+                    dueTime: _selectedTime ?? "",
+                    taskPriority: _selectedPriority!,
+                  ),
+                );
               }
-
-              if (_selectedTime == null) {
-                context.pop();
-                showSnackbar("Please select a time");
-
-                return;
-              }
-
-              if (provider.titleController.text.isEmpty) {
-                context.pop();
-                showSnackbar("Please enter title");
-
-                return;
-              }
-
-              if (provider.descriptionController.text.isEmpty) {
-                context.pop();
-                showSnackbar("Please enter description");
-
-                return;
-              }
-
-              if (_selectedPriority == null) {
-                context.pop();
-                showSnackbar("Please select a priority");
-                return;
-              }
-
-              context.pop();
-              AddTaskSuccessDialog.show(
-                context: context,
-                taskData: TaskEntity(
-                  title: provider.titleController.text,
-                  description: provider.descriptionController.text,
-                  dueDate: _selectedDate!.toIso8601String().split('T').first,
-                  dueTime: _selectedTime ?? "",
-                  taskPriority: _selectedPriority!,
-                ),
-              );
             },
             icon: Icon(Icons.send, color: kPrimaryColor),
           ),

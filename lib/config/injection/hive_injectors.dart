@@ -29,6 +29,7 @@ Future<void> setupHiveInjection() async {
   );
   final authBox=await Hive.openBox('authBox');
   final tasksBox=await Hive.openBox('taskBox');
+  final userBox=await Hive.openBox('userBox');
 
 //datsource
   getIt.registerLazySingleton<LocalNotificationDataSource>(

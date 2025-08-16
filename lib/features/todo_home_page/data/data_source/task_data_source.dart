@@ -21,6 +21,7 @@ class TaskDataSourceImpl implements TaskDataSource {
   @override
   Future<Either<Failure, TaskModel>> addTask(TaskModel taskModel,String userId) async {
     try {
+      print('called');
       final docRef = ApiUrl.userTasks(userId).doc();
       final newTask = taskModel.copyWith(id: docRef.id);
       await docRef.set(newTask.toMap());
@@ -89,8 +90,6 @@ class TaskDataSourceImpl implements TaskDataSource {
           .where('dueDate', isEqualTo: dueDate)
           .get();
 
-
-      print(ApiUrl.userTasks(userId).doc);
 
       final tasks = snapshot.docs
           .map((doc) => TaskModel.fromMap(doc.data()).copyWith(id: doc.id))

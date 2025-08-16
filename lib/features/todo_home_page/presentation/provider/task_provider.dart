@@ -1,10 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:todo/features/todo_home_page/domain/entity/task_entity.dart';
 import 'package:todo/features/todo_home_page/domain/usecase/task.usecase.dart';
 import 'package:todo/features/todo_home_page/domain/usecase/task_local.usecase.dart';
 import 'package:todo/shared/toast_alert.dart';
+
+enum SyncAction { create, update, delete, none }
 
 class TaskProvider extends ChangeNotifier {
   final TaskUseCase taskUseCase;
@@ -27,6 +28,8 @@ class TaskProvider extends ChangeNotifier {
   List<TaskEntity> tasksOfDate = [];
 
   List<TaskEntity> get tasks => _tasks;
+
+  final formKey = GlobalKey<FormState>();
 
   void setLoading(bool value) {
     _isLoading = value;
@@ -234,6 +237,11 @@ class TaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> getTasksByDate(String date) async {
+    tasksOfDate = taskLocalUseCase.getTasksByDate(date);
+    notifyListeners();
+  }
+
   Future<void> addLocalTask(TaskEntity task, Function onSuccess) async {
     await taskLocalUseCase.addTask(task);
     _tasks.add(task);
@@ -245,49 +253,22 @@ class TaskProvider extends ChangeNotifier {
     await loadLocalTasks();
   }
 
-  Future<void> deleteLocalTask(
-    String id, {
-    bool isCalendarView = false,
-    String? syncAction,
-  }) async {
-    await taskLocalUseCase.deleteTask(id);
+  Future<void> deleteLocalTask(String id, {bool isCalendarView = false}) async {
+    var task = _tasks.firstWhere((element) => element.id==id,);
+
+    final deletedTask = task.copyWith(syncAction: 'delete',isSynced: false);
+    await taskLocalUseCase.updateTask(deletedTask);
+
     if (isCalendarView) {
-      tasksOfDate.removeWhere((task) => task.id == id);
+      tasksOfDate.removeWhere((t) => t.id == id);
     } else {
       _tasks.removeWhere((t) => t.id == id);
     }
-    showSnackbar('Task deleted successfully', color: Colors.green);
 
-    await loadLocalTasks();
+    showSnackbar('Task deleted successfully', color: Colors.green);
+    notifyListeners();
+
   }
 
-  // Future<void> syncPendingTasks(String userId) async {
-  //   final pendingTasks = await taskLocalUseCase.getUnsyncedTasks();
-  //
-  //   for (final task in pendingTasks) {
-  //     try {
-  //       switch (task.syncAction) {
-  //         case 'create':
-  //           await taskUseCase.addTask(task, userId);
-  //           break;
-  //         case 'update':
-  //           await taskUseCase.updateTask(task, userId);
-  //           break;
-  //         case 'delete':
-  //           await taskUseCase.deleteTask(task.id ?? "", userId);
-  //           break;
-  //       }
-  //
-  //       final updatedTask = task.copyWith(
-  //         isSynced: true,
-  //         syncAction: 'none',
-  //       );
-  //
-  //       await taskLocalUseCase.updateTask(updatedTask);
-  //
-  //     } catch (e) {
-  //       debugPrint('Sync failed for task ${task.id}: $e');
-  //     }
-  //   }
-  // }
+
 }

@@ -3,11 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:todo/design-system/app_colors.dart';
 import 'package:todo/design-system/styles.dart';
+import 'package:todo/shared/toast_alert.dart';
 import 'package:todo/shared/widgets/elevated_button.dart';
 import 'package:todo/shared/app_constants.dart';
 
 import 'package:intl/intl.dart';
 
+import '../../../utils/utils.dart';
 import 'bottom_icons.dart';
 
 class TimeSlotPickerBottomSheet extends StatefulWidget {
@@ -176,14 +178,29 @@ class _TimeSlotPickerBottomSheetState extends State<TimeSlotPickerBottomSheet> {
                       color: Colors.white,
                     ),
                     text: "Next",
-                    onPressed: () {
-                      if(_confirmedTime==null) return;
+                      onPressed: () {
+                        if (_confirmedTime == null) {
+                          showToast(
+                            context,
+                            title: "Please select a time slot",
+                            description: "You must confirm a time slot before proceeding.",
+                          );
+                          return;
+                        }
 
-                      widget.onNext(_confirmedTime!);
+                        final scheduledDateTime = getScheduledDateTime(widget.selectedDate, _confirmedTime!, _use24hFormat);
 
+                        if (scheduledDateTime == null) {
+                          showToast(
+                            context,
+                            title: "Invalid time",
+                            description: "Please select a future time slot.",
+                          );
+                          return;
+                        }
 
-
-                    },
+                        widget.onNext(scheduledDateTime.toIso8601String());
+                      }
 
                   ),
                 ),

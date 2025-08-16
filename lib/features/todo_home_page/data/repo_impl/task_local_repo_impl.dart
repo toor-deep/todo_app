@@ -36,4 +36,11 @@ class TaskLocalRepositoryImpl implements TaskLocalRepository {
   Future<void> updateTask(TaskEntity task) {
     return dataSource.updateTask(TaskLocalModel.fromEntity(task));
   }
+
+  @override
+  List<TaskEntity> getTasksByDate(String date) {
+    return dataSource.getTasksByDate(date)
+        .map((taskModel) => taskModel.toEntity())
+        .toList();
+  }
 }

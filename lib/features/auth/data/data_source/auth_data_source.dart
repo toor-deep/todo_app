@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todo/features/auth/data/models/auth_user_model.dart';
+import 'package:todo/features/auth/domain/entity/auth_entity.dart';
 import '../../../../core/api/api_url.dart';
 import '../../../../core/errors/auth_errors.dart';
 import '../../../../core/errors/failures.dart';
@@ -27,6 +28,10 @@ abstract class AuthDataSource {
   Future<Either<Failure, AuthUserModel>> getCurrentUser();
 
   Future<Either<Failure, AuthUserModel>> signInWithGoogle();
+
+  Future<Either<Failure, AuthUserModel>> updateProfile({
+    required AuthUserModel user,
+  });
 }
 
 class AuthDataSourceImpl implements AuthDataSource {
@@ -55,6 +60,7 @@ class AuthDataSourceImpl implements AuthDataSource {
         email: email,
         fullName: fullName,
         dateOfBirth: dateOfBirth,
+        profilePicture: ProfilePicture(thumbnailUrl: '', originalUrl: ''),
       );
 
       await ApiUrl.users.doc(user.uid).set(authUser.toMap());
@@ -180,4 +186,29 @@ class AuthDataSourceImpl implements AuthDataSource {
       );
     }
   }
+
+  @override
+  Future<Either<Failure, AuthUserModel>> updateProfile({
+    required AuthUserModel user,
+  }) async {
+    try {
+      final userDoc = ApiUrl.users.doc(user.uid);
+
+      final Map<String, dynamic> userData = user.toMap()
+        ..removeWhere((key, value) => value == null || value == "");
+
+      if (userData.isEmpty) {
+        return left(ServerFailure(message: "No fields to update"));
+      }
+
+      await userDoc.update(userData);
+
+      return right(user);
+    } catch (e) {
+      return left(
+        ServerFailure(message: 'Failed to update profile: ${e.toString()}'),
+      );
+    }
+  }
+
 }

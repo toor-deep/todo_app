@@ -7,4 +7,6 @@ abstract class TaskLocalRepository {
   Future<void> clearAllTasks();
   Future<List<TaskEntity>> getUnsyncedTasks();
   Future<void> updateTask(TaskEntity task);
+  List<TaskEntity> getTasksByDate(String date);
+
 }

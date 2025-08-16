@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../../shared/app_constants.dart';
 import '../../../../shared/assets/images.dart';
+import '../../../../shared/network_provider/network_provider.dart';
 import '../../../todo_home_page/domain/entity/task_entity.dart';
 import '../../../todo_home_page/presentation/provider/task_provider.dart';
 import '../../../todo_home_page/presentation/view/add_task/all_tasks_calendar.dart';
@@ -23,12 +25,23 @@ class _CalendarViewState extends State<CalendarView> {
   late TaskProvider taskProvider;
 
   String selectedDate = DateTime.now().toString();
+  final userId = FirebaseAuth.instance.currentUser!.uid;
+  bool isConnected = false;
 
   @override
   void initState() {
     taskProvider = Provider.of<TaskProvider>(context, listen: false);
+    final connectivityProvider = context.read<ConnectivityProvider>();
+     isConnected = connectivityProvider.isConnected;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      taskProvider.fetchTasksByDate(selectedDate);
+      if (isConnected) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          taskProvider.fetchTasksByDate(selectedDate);
+        });
+      } else {
+        taskProvider.getTasksByDate(selectedDate);
+      }
     });
     super.initState();
   }
@@ -63,7 +76,11 @@ class _CalendarViewState extends State<CalendarView> {
   void setDate(DateTime date) {
     setState(() {
       selectedDate = date.toString();
-      taskProvider.fetchTasksByDate(selectedDate);
+      if(isConnected){
+        taskProvider.fetchTasksByDate(selectedDate);
+      } else {
+        taskProvider.getTasksByDate(selectedDate);
+      }
     });
   }
 

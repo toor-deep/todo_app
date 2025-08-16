@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:todo/features/auth/domain/entity/auth_entity.dart';
 import 'package:todo/features/auth/presentation/provider/auth_provider.dart';
 import 'package:todo/features/auth/presentation/sign_up_view.dart';
 import 'package:todo/shared/assets/images.dart';
@@ -32,10 +33,15 @@ class _SignInViewState extends State<SignInView> {
   late AuthenticationProvider authProvider;
   final TextEditingController passController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  bool isRememberMe = false;
+  bool isPassVisible = true;
 
   @override
   void initState() {
     authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+    if(authProvider.currentUser!=null){
+      emailController.text = authProvider.currentUser?.email ?? '';
+    }
     super.initState();
   }
 
@@ -109,6 +115,12 @@ class _SignInViewState extends State<SignInView> {
                 Spacing.h16,
                 TextFieldClass(
                   label: 'Password',
+                  isPassVisible: isPassVisible,
+                  onTogglePassword: () {
+                    setState(() {
+                      isPassVisible= !isPassVisible;
+                    });
+                  },
                   controller: passController,
                   isPassword: true,
                   validator: (value) => value?.validatePassword(),
@@ -196,8 +208,12 @@ class _SignInViewState extends State<SignInView> {
         Row(
           children: [
             Checkbox(
-              value: true,
-              onChanged: (value) {},
+              value: isRememberMe,
+              onChanged: (value) {
+                setState(() {
+                  isRememberMe = value ?? false;
+                });
+              },
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
               ),
@@ -223,11 +239,9 @@ class _SignInViewState extends State<SignInView> {
       height: 48.h,
       child: OutlinedButton(
         onPressed: () {
-          authProvider.signInWithGoogle(
-            () {
-              context.pushNamed(BottomNavBar.name);
-            },
-          );
+          authProvider.signInWithGoogle(() {
+            context.pushNamed(BottomNavBar.name);
+          });
         },
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: kContainerBgColor),
@@ -258,9 +272,11 @@ class _SignInViewState extends State<SignInView> {
     authProvider.signIn(
       emailController.text.trim(),
       passController.text.trim(),
+      isRememberMe,
       () {
         context.pushNamed(BottomNavBar.name);
       },
     );
   }
+
 }

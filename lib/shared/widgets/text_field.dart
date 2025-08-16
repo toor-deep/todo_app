@@ -12,7 +12,8 @@ class TextFieldClass extends StatelessWidget {
   final TextEditingController? controller;
   final TextStyle? style;
   final int? maxLines;
-
+  final bool? isPassVisible;
+  final VoidCallback? onTogglePassword;
   const TextFieldClass({
     super.key,
     required this.label,
@@ -21,6 +22,7 @@ class TextFieldClass extends StatelessWidget {
     this.controller,
     this.style,
     this.maxLines,
+    this.isPassVisible = false, this.onTogglePassword,
   });
 
   @override
@@ -52,6 +54,8 @@ class TextFieldClass extends StatelessWidget {
           maxLines: maxLines ?? 1,
           textAlignVertical: TextAlignVertical.top,
           autovalidateMode: AutovalidateMode.onUserInteraction,
+          obscureText: isPassVisible??false,
+          obscuringCharacter: '*',
           decoration: InputDecoration(
             errorStyle: TextStyles.inter12Regular.copyWith(color: Colors.red),
             contentPadding: EdgeInsets.symmetric(
@@ -59,7 +63,15 @@ class TextFieldClass extends StatelessWidget {
               horizontal: 12.w,
             ),
             suffixIcon: isPassword
-                ? Icon(Icons.visibility_off, color: kGreyDarkColor)
+                ? InkWell(
+              onTap: onTogglePassword,
+              child: Icon(
+                (isPassVisible ?? false)
+                    ? Icons.visibility_off
+                    : Icons.visibility,
+                color: kGreyDarkColor,
+              ),
+            )
                 : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(5),

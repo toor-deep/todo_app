@@ -17,6 +17,7 @@ import 'features/bottom_bar/custom_bottom_navigation/provider/bottom_navigation_
 import 'features/notifications/data/model/notifications_local_model/notification_model.dart';
 import 'features/notifications/notification_service.dart';
 import 'firebase_options.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +34,6 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => BottomNavigationProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
         ChangeNotifierProvider(
           create: (_) => AuthenticationProvider(authUseCase: getIt(),localAuthUseCase: getIt()),
         ),
@@ -43,6 +43,8 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (_) => NotificationProvider(notificationUseCase: getIt()),
         ),
+        ChangeNotifierProvider(create: (_) => ConnectivityProvider(syncManager: getIt())),
+
       ],
       child: MyApp(),
     ),

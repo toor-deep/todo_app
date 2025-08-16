@@ -209,7 +209,7 @@ class TaskItemView extends StatelessWidget {
 
               taskProvider.deleteTask(taskData.id??"",isCalendarViewItem??false);}
               else{
-                taskProvider.deleteLocalTask(taskData.id??"",syncAction: 'delete');
+                taskProvider.deleteLocalTask(taskData.id??"", isCalendarView: isCalendarViewItem??false);
               }
               context.pop();
             },

@@ -17,11 +17,15 @@ class User extends HiveObject {
   @HiveField(3)
   final String token;
 
+  @HiveField(4)
+  final String? profilePictureUrl;
+
   User({
     required this.id,
     required this.name,
     required this.email,
     required this.token,
+    this.profilePictureUrl,
   });
 }
 
@@ -34,6 +38,10 @@ extension UserModelMapper on User {
       fullName: name,
       email: email,
       dateOfBirth: "",
+      profilePicture: ProfilePicture(
+        originalUrl: profilePictureUrl ?? '',
+        thumbnailUrl: profilePictureUrl ?? '',
+      ),
     );
   }
 }
@@ -44,5 +52,6 @@ User userFromEntity(AuthUser entity) {
     name: entity.fullName,
     email: entity.email,
     token: '',
+    profilePictureUrl: entity.profilePicture.originalUrl
   );
 }

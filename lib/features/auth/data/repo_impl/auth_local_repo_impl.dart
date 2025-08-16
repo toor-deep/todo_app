@@ -3,7 +3,6 @@ import 'package:todo/features/auth/data/models/hive/user_local_model.dart';
 import 'package:todo/features/auth/domain/entity/auth_entity.dart';
 import '../../domain/repository/auth_local_repository.dart';
 
-
 class AuthLocalRepositoryImpl implements AuthLocalRepository {
   final LocalAuthDataSource localDataSource;
 
@@ -24,7 +23,6 @@ class AuthLocalRepositoryImpl implements AuthLocalRepository {
       return null;
     });
   }
-  
 
   @override
   Future<bool> getLoginState() {

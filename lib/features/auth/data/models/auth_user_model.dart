@@ -7,6 +7,7 @@ class AuthUserModel extends AuthUser {
     required super.email,
     required super.fullName,
     required super.dateOfBirth,
+     super.profilePicture,
   });
 
   factory AuthUserModel.fromMap(Map<String, dynamic> map) {
@@ -15,7 +16,14 @@ class AuthUserModel extends AuthUser {
       email: map['email'],
       fullName: map['fullName'],
       dateOfBirth: map['dateOfBirth'],
+      profilePicture: map['profilePicture'] != null
+          ? ProfilePicture(
+              thumbnailUrl: map['profilePicture']['thumbnailUrl'],
+              originalUrl: map['profilePicture']['originalUrl'],
+            )
+          : const ProfilePicture(thumbnailUrl: '', originalUrl: ''),
     );
+
   }
 
   Map<String, dynamic> toMap() {
@@ -24,6 +32,10 @@ class AuthUserModel extends AuthUser {
       'email': email,
       'fullName': fullName,
       'dateOfBirth': dateOfBirth,
+      'profilePicture': {
+        'thumbnailUrl': profilePicture.thumbnailUrl,
+        'originalUrl': profilePicture.originalUrl,
+      },
     };
   }
 }

@@ -22,12 +22,12 @@ class TaskLocalDataSource {
     await _taskBox.clear();
   }
   List<TaskLocalModel> getUnsyncedTasks() {
-    for(var e in  _taskBox.values
-        .cast<TaskLocalModel>()
-        .where((task) => task.isSynced == false)
-        .toList()){
-      print(e.syncAction);
-    }
+    // for(var e in  _taskBox.values
+    //     .cast<TaskLocalModel>()
+    //     .where((task) => task.isSynced == false)
+    //     .toList()){
+    //   print(e.syncAction);
+    // }
     return _taskBox.values
         .cast<TaskLocalModel>()
         .where((task) => task.isSynced == false)
@@ -35,6 +35,15 @@ class TaskLocalDataSource {
   }
   Future<void> updateTask(TaskLocalModel task) async {
     await _taskBox.put(task.id, task);
+  }
+
+  List<TaskLocalModel> getTasksByDate(String date) {
+    String dueDate=DateTime.parse(date).toUtc().toIso8601String().split('T').first;
+
+    return _taskBox.values
+        .where((task) => task.dueDate == dueDate)
+        .cast<TaskLocalModel>()
+        .toList();
   }
 
 

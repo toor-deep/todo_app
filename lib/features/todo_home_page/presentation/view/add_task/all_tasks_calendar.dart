@@ -114,7 +114,6 @@ class _AllTasksCalendarScreenState extends State<AllTasksCalendarScreen> {
   }) {
     final dayAbbr = DateFormat.E().format(day);
     final dayNum = day.day.toString();
-
     final shouldHighlightAsToday = isToday && !isSelected;
 
     final bgColor = isSelected
@@ -161,10 +160,10 @@ class _AllTasksCalendarScreenState extends State<AllTasksCalendarScreen> {
           ),
           Spacing.h4,
 
-          if (day == _selectedDay) ...[
+          if (isSameDay(day, _selectedDay)) ...[
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: widget.tasks
+              children: widget.tasks.take(5)
                   .map(
                     (task) => Container(
                       margin: EdgeInsets.symmetric(horizontal: 1.5.w),

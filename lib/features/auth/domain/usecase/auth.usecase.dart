@@ -42,4 +42,8 @@ class AuthUseCase {
   Future<Either<Failure, AuthUser>> signInWithGoogle() {
     return repository.signInWithGoogle();
   }
+
+  Future<Either<Failure, AuthUser>> updateProfile({required AuthUser user}) {
+    return repository.updateProfile(user: user.authUserModel);
+  }
 }

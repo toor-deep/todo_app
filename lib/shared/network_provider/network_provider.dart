@@ -2,14 +2,18 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
+import '../../features/todo_home_page/services/sync_manager.dart';
+
 class ConnectivityProvider extends ChangeNotifier {
+  final SyncManager syncManager;
+
   final Connectivity _connectivity = Connectivity();
   late final StreamSubscription<List<ConnectivityResult>> _subscription;
 
   bool _isConnected = true;
   bool get isConnected => _isConnected;
 
-  ConnectivityProvider() {
+  ConnectivityProvider({required this.syncManager}) {
     _initializeConnectivity();
   }
 
@@ -25,6 +29,8 @@ class ConnectivityProvider extends ChangeNotifier {
   void _updateConnectionStatus(List<ConnectivityResult> results) {
     _isConnected = results.any((r) =>
     r == ConnectivityResult.wifi || r == ConnectivityResult.mobile);
+    syncManager.syncPendingTasksIfOnline(isConnected);
+
     notifyListeners();
   }
 

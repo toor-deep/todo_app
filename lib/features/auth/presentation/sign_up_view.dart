@@ -33,6 +33,8 @@ class _SignUpViewState extends State<SignUpView> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  bool isPassVisible = true;
+
   late AuthenticationProvider authProvider;
   @override
   void initState() {
@@ -112,8 +114,12 @@ class _SignUpViewState extends State<SignUpView> {
             key: formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.arrow_back),
+              children: [InkWell(
+                onTap: (){
+                  context.pushNamed(SignInView.name);
+
+                },
+                  child: Icon(Icons.arrow_back)),
                 Spacing.h24,
                 Text(
                   "Sign up",
@@ -144,6 +150,12 @@ class _SignUpViewState extends State<SignUpView> {
                 TextFieldClass(
                   label: 'Set Password',
                   isPassword: true,
+                  isPassVisible: isPassVisible,
+                  onTogglePassword: () {
+                    setState(() {
+                      isPassVisible= !isPassVisible;
+                    });
+                  },
                   validator: (value) => value?.validatePassword(),
                   controller: passController,
                 ),
@@ -209,6 +221,8 @@ class _SignUpViewState extends State<SignUpView> {
           controller: phoneController,
           flagsButtonPadding: const EdgeInsets.all(8),
           disableLengthCheck: true,
+          initialCountryCode: "IN",
+
           dropdownIconPosition: IconPosition.trailing,
           decoration: const InputDecoration(
             enabledBorder: OutlineInputBorder(

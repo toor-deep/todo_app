@@ -24,4 +24,7 @@ class TaskLocalUseCase {
   Future<void> updateTask(TaskEntity task) {
     return repository.updateTask(task);
   }
+  List<TaskEntity> getTasksByDate(String date) {
+    return repository.getTasksByDate(date);
+  }
 }

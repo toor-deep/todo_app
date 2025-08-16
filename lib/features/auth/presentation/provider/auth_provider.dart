@@ -1,11 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart' hide User;
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:todo/core/utils/upload_media.dart';
 import 'package:todo/features/auth/domain/usecase/auth.usecase.dart';
 import 'package:todo/features/auth/domain/usecase/auth_local.usecase.dart';
 import 'package:todo/shared/toast_alert.dart';
 
-import '../../data/models/hive/user_local_model.dart';
 import '../../domain/entity/auth_entity.dart';
 
 class AuthenticationProvider with ChangeNotifier {
@@ -20,7 +20,8 @@ class AuthenticationProvider with ChangeNotifier {
   }
 
   Future<void> init() async {
-    currentUser = await getCurrentUser();
+    currentUser = await getLocalUser();
+    currentUser ??= await getCurrentUser();
     notifyListeners();
   }
 
@@ -42,6 +43,7 @@ class AuthenticationProvider with ChangeNotifier {
   }
 
   AuthUser? currentUser;
+  File? profilePicture;
 
   Future<void> signUp(
     String email,
@@ -68,6 +70,7 @@ class AuthenticationProvider with ChangeNotifier {
           _setLoading(false);
           _setError(null);
           await localAuthUseCase.saveLoginState(true);
+          currentUser = r;
           onSuccess();
           showSnackbar("Registration successful!", color: Colors.green);
         },
@@ -78,7 +81,12 @@ class AuthenticationProvider with ChangeNotifier {
     }
   }
 
-  Future<void> signIn(String email, String password, Function onSuccess) async {
+  Future<void> signIn(
+    String email,
+    String password,
+    bool isRememberMe,
+    Function onSuccess,
+  ) async {
     try {
       _setLoading(true);
       final response = await authUseCase.signIn(
@@ -94,6 +102,10 @@ class AuthenticationProvider with ChangeNotifier {
           _setLoading(false);
           _setError(null);
           await localAuthUseCase.saveLoginState(true);
+          currentUser = r;
+          if (isRememberMe) {
+            await saveUserLocally(r);
+          }
           onSuccess();
           showSnackbar("Login successful!", color: Colors.green);
         },
@@ -118,6 +130,7 @@ class AuthenticationProvider with ChangeNotifier {
           _setLoading(false);
           _setError(null);
           await localAuthUseCase.saveLoginState(true);
+          currentUser = r;
           onSuccess();
           showSnackbar("Login successful!", color: Colors.green);
         },
@@ -156,21 +169,49 @@ class AuthenticationProvider with ChangeNotifier {
     );
   }
 
-  Future<void> saveUserLocally(AuthUser user) async {
-    final userBox = Hive.box<User>('userBox');
-    final localUser = userFromEntity(user);
-    await userBox.put('currentUser', localUser);
+  Future<AuthUser?> updateProfile(AuthUser user, Function onSuccess) async {
+    try {
+      final mediaService = StorageService();
+      if (profilePicture != null) {
+        final url = await mediaService.uploadProfileImage(
+          currentUser?.uid ?? '',
+          profilePicture,
+        );
+        user = user.copyWith(
+          profilePicture: ProfilePicture(thumbnailUrl: url, originalUrl: url),
+        );
+      }
+      final result = await authUseCase.updateProfile(user: user);
+      return result.fold(
+        (failure) {
+          showSnackbar(failure.message, color: Colors.red);
+          return null;
+        },
+        (updatedUser) async {
+          currentUser = updatedUser;
+          await saveUserLocally(updatedUser);
+          onSuccess();
+          showSnackbar("Profile updated successfully!", color: Colors.green);
+          notifyListeners();
+          return updatedUser;
+        },
+      );
+    } catch (e) {
+      showSnackbar(e.toString(), color: Colors.red);
+      return null;
+    }
   }
 
-  AuthUser? getLocalUser() {
-    final userBox = Hive.box<User>('userBox');
-    final localUser = userBox.get('currentUser');
-    return localUser?.toEntity();
+  Future<void> saveUserLocally(AuthUser user) async {
+    return await localAuthUseCase.saveUser(user);
+  }
+
+  Future<AuthUser?> getLocalUser() async {
+    return await localAuthUseCase.getUser();
   }
 
   Future<void> clearLocalUser() async {
-    final userBox = Hive.box<User>('userBox');
-    await userBox.delete('currentUser');
+    return await localAuthUseCase.logout();
   }
 
   Future<bool> isUserLoggedIn() async {

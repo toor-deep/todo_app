@@ -19,7 +19,7 @@ class TaskModel {
     required this.description,
     required this.dueTime,
     this.isCompleted = false,
-    this.isSynced = false,
+    this.isSynced = true,
     this.syncAction,
   });
 
