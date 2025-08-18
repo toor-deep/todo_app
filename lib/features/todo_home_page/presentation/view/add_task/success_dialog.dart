@@ -10,9 +10,7 @@ import 'package:todo/shared/extensions/date_extensions.dart';
 import '../../../../../shared/app_constants.dart';
 import '../../../../../shared/network_provider/network_provider.dart';
 import '../../../../../shared/widgets/elevated_button.dart';
-import '../../../../notifications/core.dart';
 import '../../../../notifications/notification_service.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 class AddTaskSuccessDialog {
   static void show({

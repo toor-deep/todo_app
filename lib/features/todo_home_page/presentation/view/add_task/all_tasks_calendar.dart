@@ -15,11 +15,11 @@ class AllTasksCalendarScreen extends StatefulWidget {
   final List<TaskEntity> tasks;
 
   const AllTasksCalendarScreen({
-    Key? key,
+    super.key,
     required this.onDateChanged,
     required this.tasks,
     this.selectedDay,
-  }) : super(key: key);
+  });
 
   @override
   State<AllTasksCalendarScreen> createState() => _AllTasksCalendarScreenState();

@@ -232,7 +232,7 @@ class TaskProvider extends ChangeNotifier {
   // ---------------- LOCAL TASKS ---------------- //
 
   Future<void> loadLocalTasks() async {
-    final tasks = await taskLocalUseCase.getAllTasks();
+    final tasks = taskLocalUseCase.getAllTasks();
     _tasks = tasks;
     notifyListeners();
   }

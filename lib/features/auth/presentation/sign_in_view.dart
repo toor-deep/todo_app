@@ -1,10 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:todo/features/auth/domain/entity/auth_entity.dart';
 import 'package:todo/features/auth/presentation/provider/auth_provider.dart';
 import 'package:todo/features/auth/presentation/sign_up_view.dart';
 import 'package:todo/shared/assets/images.dart';

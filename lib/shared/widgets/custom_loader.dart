@@ -25,7 +25,7 @@ class CustomLoader {
           children: <Widget>[
             Container(
               child: buildLoader(),
-              color: Colors.black.withOpacity(.3),
+              color: Colors.black.withValues(alpha: 0.3),
             )
           ],
         );

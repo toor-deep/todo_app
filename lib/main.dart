@@ -14,10 +14,8 @@ import 'core/routing.dart';
 import 'design-system/app-theme/app_theme_cubit.dart';
 import 'features/auth/presentation/provider/auth_provider.dart';
 import 'features/bottom_bar/custom_bottom_navigation/provider/bottom_navigation_provider.dart';
-import 'features/notifications/data/model/notifications_local_model/notification_model.dart';
 import 'features/notifications/notification_service.dart';
 import 'firebase_options.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

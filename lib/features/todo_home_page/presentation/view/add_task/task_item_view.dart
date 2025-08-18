@@ -8,7 +8,6 @@ import 'package:todo/design-system/app_colors.dart';
 import 'package:todo/design-system/styles.dart';
 import 'package:todo/features/todo_home_page/presentation/provider/task_provider.dart';
 import 'package:todo/features/todo_home_page/presentation/utils/utils.dart';
-import 'package:todo/features/todo_home_page/presentation/view/add_task/success_dialog.dart';
 import 'package:todo/features/todo_home_page/presentation/view/utils/task_utils.dart';
 import 'package:todo/shared/widgets/elevated_button.dart';
 import 'package:intl/intl.dart';
@@ -22,7 +21,7 @@ class TaskItemView extends StatelessWidget {
   final bool? isCalendarViewItem;
   final Function(bool) onEdit;
 
-  const TaskItemView({Key? key, required this.taskData,this.isCalendarViewItem, required this.onEdit}) : super(key: key);
+  const TaskItemView({super.key, required this.taskData,this.isCalendarViewItem, required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
