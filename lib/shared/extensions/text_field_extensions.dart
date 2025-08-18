@@ -56,9 +56,8 @@ extension TextFieldValidator on String {
   String? validatePassword() {
     if (isEmpty) {
       return "Please enter password";
-    } else if (this.length<6) {
+    } else if (length<6) {
       return 'Password must be at least 6 characters';
-      // return 'Password must be at least 6 characters, including at least 1 capital letter, at least 1 number & at least 1 special character';
     } else {
       return null;
     }

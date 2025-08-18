@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../design-system/styles.dart';
 
 final appNavigationKey = GlobalKey<NavigatorState>();
 const kAppName = 'PropertySelling';
@@ -54,78 +53,3 @@ class AppPadding {
   }
 }
 
-// Color schemes
-final shiftColors = [
-  const Color(0xFFFFA185),
-  const Color(0xFFC3CD70),
-  const Color(0xFF2AAC9F),
-  const Color(0xFF848CB8),
-  const Color(0xFFB75779),
-  const Color(0xFFE86969),
-  const Color(0xFFB4978D),
-  const Color(0xFFDFB16D),
-  const Color(0xFFAACB89),
-  const Color(0xFF18B4C9),
-  const Color(0xFFAE99D1),
-  const Color(0xFFE16B92),
-  const Color(0xFFF3766D),
-  const Color(0xFFCDAC8B),
-  const Color(0xFFE2BE50),
-  const Color(0xFF74B976),
-  const Color(0xFF4FB1DE),
-  const Color(0xFFBD84C8),
-  const Color(0xFFF184AB),
-  const Color(0xFF6EA9DB),
-  const Color(0xFFF0957A),
-  const Color(0xFFD2B97F),
-  const Color(0xFF85C187),
-  const Color(0xFF7BBBEA),
-  const Color(0xFFD39CDD),
-  const Color(0xFFF7817B),
-  const Color(0xFF84B3CD),
-];
-
-final colorSchemes = [
-  const Color(0xFFFFA185),
-  const Color(0xFFC3CD70),
-  const Color(0xFF2AAC9F),
-  const Color(0xFF848CB8),
-  const Color(0xFFB75779),
-  const Color(0xFFE86969),
-  const Color(0xFFB4978D),
-  const Color(0xFFDFB16D),
-  const Color(0xFFAACB89),
-  const Color(0xFF18B4C9),
-  const Color(0xFFAE99D1),
-  const Color(0xFFE16B92),
-  const Color(0xFFF3766D),
-  const Color(0xFFCDAC8B),
-  const Color(0xFFE2BE50),
-  const Color(0xFF74B976),
-  const Color(0xFF4FB1DE),
-  const Color(0xFFBD84C8),
-  const Color(0xFFF184AB),
-  const Color(0xFF6EA9DB),
-  const Color(0xFFF0957A),
-  const Color(0xFFD2B97F),
-  const Color(0xFF85C187),
-  const Color(0xFF7BBBEA),
-  const Color(0xFFD39CDD),
-  const Color(0xFFF7817B),
-  const Color(0xFF84B3CD),
-];
-
-String colorToHex(Color color, {bool leadingHashSign = true}) {
-  return '${leadingHashSign ? '#' : ''}'
-      '${color.red.toRadixString(16).padLeft(2, '0')}'
-      '${color.green.toRadixString(16).padLeft(2, '0')}'
-      '${color.blue.toRadixString(16).padLeft(2, '0')}';
-}
-
-Color hexToColor(String hexColor) {
-  hexColor = hexColor.toUpperCase().replaceAll("#", "");
-  if (hexColor.length == 6) {
-    hexColor = "FF$hexColor";
-  }
-  return Color(int.parse(hexColor, radix: 16));
-}

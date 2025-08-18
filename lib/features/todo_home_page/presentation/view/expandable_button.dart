@@ -35,7 +35,7 @@ class _ExpandableFabState extends State<ExpandableFab> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 154.w,
       child: Column(
         mainAxisSize: MainAxisSize.min,

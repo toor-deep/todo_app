@@ -21,7 +21,6 @@ class TaskDataSourceImpl implements TaskDataSource {
   @override
   Future<Either<Failure, TaskModel>> addTask(TaskModel taskModel,String userId) async {
     try {
-      print('called');
       final docRef = ApiUrl.userTasks(userId).doc();
       final newTask = taskModel.copyWith(id: docRef.id);
       await docRef.set(newTask.toMap());
@@ -44,7 +43,6 @@ class TaskDataSourceImpl implements TaskDataSource {
 
   @override
   Future<Either<Failure, void>> deleteTask( String taskId,String userId) async {
-    print(taskId);
     try {
       await ApiUrl.singleTask(userId, taskId).delete();
       return Right(null);
