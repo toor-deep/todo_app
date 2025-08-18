@@ -29,9 +29,8 @@ Future<void> setupHiveInjection() async {
   );
   final authBox=await Hive.openBox('authBox');
   final tasksBox=await Hive.openBox('taskBox');
-  final userBox=await Hive.openBox('userBox');
 
-//datsource
+//datasource
   getIt.registerLazySingleton<LocalNotificationDataSource>(
     () => LocalNotificationDataSource(notificationBox),
   );
@@ -44,7 +43,7 @@ Future<void> setupHiveInjection() async {
 
 
 
-  //reposiroty
+  //repository
   getIt.registerSingleton<NotificationRepository>(
     NotificationRepositoryImpl(getIt()),
   );
@@ -56,7 +55,7 @@ Future<void> setupHiveInjection() async {
   );
 
 
-  //usecase
+  //useCase
   getIt.registerSingleton(NotificationUseCase(getIt()));
   getIt.registerSingleton(LocalAuthUseCase(getIt()));
   getIt.registerSingleton(TaskLocalUseCase(getIt()));

@@ -16,13 +16,11 @@ class SyncManager {
   });
 
   Future<void> syncPendingTasksIfOnline(bool isConnected) async {
-    print('called sync');
     if (!isConnected || _isSyncing) return;
     _isSyncing = true;
 
     try {
       final userId = getIt<AuthenticationProvider>().currentUser?.uid;
-      print('id is $userId');
       if (userId == null) return;
 
       final pendingTasks = await taskLocalUseCase.getUnsyncedTasks();

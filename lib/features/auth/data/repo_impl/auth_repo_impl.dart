@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:todo/core/errors/failures.dart';
 import 'package:todo/features/auth/data/data_source/auth_data_source.dart';
-import 'package:todo/features/auth/data/models/auth_user_model.dart';
 import 'package:todo/features/auth/domain/entity/auth_entity.dart';
 
 import '../../domain/repository/auth_repository.dart';
