@@ -44,12 +44,14 @@ class AppElevatedButton extends StatelessWidget {
         ),
         onPressed: onPressed,
         child:
-            widget ??
-            Text(
-              text,
-              style:
-                  textStyle ??
-                  TextStyles.inter14Semi.copyWith(color: Colors.white),
+            FittedBox(
+              child: widget ??
+              Text(
+                text,
+                style:
+                    textStyle ??
+                    TextStyles.inter14Semi.copyWith(color: Colors.white),
+              ),
             ),
       ),
     );

@@ -22,12 +22,6 @@ class TaskLocalDataSource {
     await _taskBox.clear();
   }
   List<TaskLocalModel> getUnsyncedTasks() {
-    // for(var e in  _taskBox.values
-    //     .cast<TaskLocalModel>()
-    //     .where((task) => task.isSynced == false)
-    //     .toList()){
-    //   print(e.syncAction);
-    // }
     return _taskBox.values
         .cast<TaskLocalModel>()
         .where((task) => task.isSynced == false)

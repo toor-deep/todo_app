@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:todo/config/injection/dependecy_injection.dart';
 import '../domain/usecase/task.usecase.dart';
 import '../domain/usecase/task_local.usecase.dart';
 import 'package:todo/features/auth/presentation/provider/auth_provider.dart';
@@ -6,22 +7,22 @@ import 'package:todo/features/auth/presentation/provider/auth_provider.dart';
 class SyncManager {
   final TaskLocalUseCase taskLocalUseCase;
   final TaskUseCase taskUseCase;
-  final AuthenticationProvider authProvider;
 
   bool _isSyncing = false;
 
   SyncManager({
     required this.taskLocalUseCase,
     required this.taskUseCase,
-    required this.authProvider,
   });
 
   Future<void> syncPendingTasksIfOnline(bool isConnected) async {
+    print('called sync');
     if (!isConnected || _isSyncing) return;
     _isSyncing = true;
 
     try {
-      final userId = authProvider.currentUser?.uid;
+      final userId = getIt<AuthenticationProvider>().currentUser?.uid;
+      print('id is $userId');
       if (userId == null) return;
 
       final pendingTasks = await taskLocalUseCase.getUnsyncedTasks();

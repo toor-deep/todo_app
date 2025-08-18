@@ -7,6 +7,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:todo/design-system/app_colors.dart';
 import 'package:todo/design-system/styles.dart';
 import 'package:todo/features/todo_home_page/presentation/provider/task_provider.dart';
+import 'package:todo/features/todo_home_page/presentation/utils/utils.dart';
 import 'package:todo/features/todo_home_page/presentation/view/add_task/success_dialog.dart';
 import 'package:todo/features/todo_home_page/presentation/view/utils/task_utils.dart';
 import 'package:todo/shared/widgets/elevated_button.dart';
@@ -106,7 +107,7 @@ class TaskItemView extends StatelessWidget {
                 spacing: 4.w,
                 children: [
                   Icon(Icons.timer_sharp, color: kGreyDarkColor, size: 20),
-                  Text(taskData.dueTime, style: TextStyles.inter13Regular),
+                  Text(taskData.dueTime.getFormattedTime(), style: TextStyles.inter13Regular),
                 ],
               ),
               Text(

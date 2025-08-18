@@ -10,7 +10,7 @@ import 'sub_widgets/bottom_icons.dart';
 import 'sub_widgets/input_fields.dart';
 
 class NewTodoBottomSheet extends StatelessWidget {
-   NewTodoBottomSheet({super.key});
+   const NewTodoBottomSheet({super.key});
 
 
   @override

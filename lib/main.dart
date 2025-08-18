@@ -34,16 +34,20 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => BottomNavigationProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(
-          create: (_) => AuthenticationProvider(authUseCase: getIt(),localAuthUseCase: getIt()),
+        ChangeNotifierProvider<AuthenticationProvider>.value(
+          value: getIt<AuthenticationProvider>(),
         ),
-        ChangeNotifierProvider(
-          create: (_) => TaskProvider(taskUseCase: getIt(),taskLocalUseCase: getIt()),
+        ChangeNotifierProvider<TaskProvider>.value(
+          value: getIt<TaskProvider>(),
         ),
-        ChangeNotifierProvider(
-          create: (_) => NotificationProvider(notificationUseCase: getIt()),
+
+        ChangeNotifierProvider<NotificationProvider>.value(
+          value: getIt<NotificationProvider>(),
         ),
-        ChangeNotifierProvider(create: (_) => ConnectivityProvider(syncManager: getIt())),
+
+        ChangeNotifierProvider<ConnectivityProvider>.value(
+          value: getIt<ConnectivityProvider>(),
+        ),
 
       ],
       child: MyApp(),

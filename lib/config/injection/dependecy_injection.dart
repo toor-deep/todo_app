@@ -36,7 +36,6 @@ void injectDependencies() {
       SyncManager(
         taskLocalUseCase: getIt(),
         taskUseCase: getIt(),
-        authProvider: getIt<AuthenticationProvider>(),
       )
   );
   getIt.registerSingleton(ConnectivityProvider(syncManager:getIt()));

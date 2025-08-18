@@ -66,7 +66,7 @@ class _CalendarViewState extends State<CalendarView> {
 
                 _listView(value.tasksOfDate),
               ],
-            ),
+            )
           ),
         );
       },
@@ -97,7 +97,7 @@ class _CalendarViewState extends State<CalendarView> {
           itemBuilder: (context, index) {
             final item = items[index];
             return Padding(
-              padding: EdgeInsets.only(bottom: 20.h),
+              padding: EdgeInsets.only(bottom: 20.h,left: 16.w,right: 16.w),
               child: TaskItemView(
                 isCalendarViewItem: true,
                 onEdit: (data) {},

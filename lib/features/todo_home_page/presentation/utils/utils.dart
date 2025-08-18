@@ -2,7 +2,11 @@ import 'package:intl/intl.dart';
 
 import '../provider/task_provider.dart';
 
-DateTime? getScheduledDateTime(DateTime selectedDate, String confirmedTime, bool use24hFormat) {
+DateTime? getScheduledDateTime(
+  DateTime selectedDate,
+  String confirmedTime,
+  bool use24hFormat,
+) {
   try {
     late int hour;
     late int minute;
@@ -36,8 +40,21 @@ DateTime? getScheduledDateTime(DateTime selectedDate, String confirmedTime, bool
   }
 }
 
-extension EnumToString on SyncAction{
+extension EnumToString on SyncAction {
   String toShortString() {
     return toString();
   }
 }
+
+
+extension FormatTime on String {
+  String getFormattedTime() {
+    try {
+      DateTime dateTime = DateTime.parse(this).toLocal();
+      return DateFormat.jm().format(dateTime);
+    } catch (e) {
+      return "Invalid time";
+    }
+  }
+}
+

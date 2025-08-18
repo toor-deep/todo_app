@@ -40,14 +40,16 @@ class AppOutlinedButton extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 16.w),
         ),
         onPressed: onPressed,
-        child: widget ??
-            Text(
-              text,
-              style: textStyle ??
-                  TextStyles.inter14Semi.copyWith(
-                    color: textColor ?? Colors.black,
-                  ),
-            ),
+        child: FittedBox(
+          child: widget ??
+              Text(
+                text,
+                style: textStyle ??
+                    TextStyles.inter14Semi.copyWith(
+                      color: textColor ?? Colors.black,
+                    ),
+              ),
+        ),
       ),
     );
   }

@@ -1,10 +1,11 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:hive/hive.dart';
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
-import 'core.dart';
 import 'data/model/notifications_local_model/notification_model.dart';
 
 class NotificationService {
@@ -14,6 +15,15 @@ class NotificationService {
 
   static Future<void> init() async {
     tz.initializeTimeZones();
+    try {
+      String deviceTimeZone = await FlutterTimezone.getLocalTimezone();
+
+      tz.setLocalLocation(tz.getLocation(deviceTimeZone));
+      debugPrint("✅ Local timezone set: $deviceTimeZone");
+    } catch (e) {
+      debugPrint("⚠️ Could not get device timezone, defaulting to UTC: $e");
+      tz.setLocalLocation(tz.getLocation('UTC'));
+    }
 
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -113,28 +123,24 @@ class NotificationService {
     await notificationBox.put(newNotification.id, newNotification);
   }
 
-  static Future<void> scheduleReminder({
+  //Task reminder notifications
+  Future<void> scheduleNotification({
+    int id = 1,
     required String title,
     required String body,
-    required DateTime scheduledTime,
+    required DateTime scheduledDate,
   }) async {
-    print('Scheduled time (raw): $scheduledTime');
+    tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(scheduledDate, tz.local);
 
-    final tzScheduled = tz.TZDateTime(
-      tz.local,
-      scheduledTime.year,
-      scheduledTime.month,
-      scheduledTime.day,
-      scheduledTime.hour,
-      scheduledTime.minute,
-      scheduledTime.second,
-    );
-    print('Scheduled time (TZ): $tzScheduled');
+    if (scheduledTZDate.isBefore(now)) {
+      scheduledTZDate = scheduledTZDate.add(const Duration(days: 1));
+    }
 
     const androidDetails = AndroidNotificationDetails(
       'reminder_channel_id',
       'Reminder Notifications',
-      channelDescription: 'This channel is used for scheduled reminders.',
+      channelDescription: 'Scheduled reminders',
       importance: Importance.max,
       priority: Priority.high,
       playSound: true,
@@ -142,17 +148,27 @@ class NotificationService {
 
     const notifDetails = NotificationDetails(android: androidDetails);
 
-    final notificationId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    print("📌 Now (Local): ${now.hour}:${now.minute}");
+    print("📌 Scheduled at: $scheduledDate");
 
     await _localNotif.zonedSchedule(
-      notificationId,
+      id,
       title,
       body,
-      tzScheduled.toLocal(),
+      scheduledTZDate,
       notifDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
+    final notificationBox = Hive.box<NotificationModel>('notificationsBox');
 
-    print('Notification scheduled with ID $notificationId at $tzScheduled');
+    final newNotification = NotificationModel(
+      id: DateTime.now().toIso8601String(),
+      title: title,
+      body: body,
+      dateTime: DateTime.now().add(Duration(minutes: 1)),
+      isReminder: true,
+    );
+
+    await notificationBox.put(newNotification.id, newNotification);
   }
 }

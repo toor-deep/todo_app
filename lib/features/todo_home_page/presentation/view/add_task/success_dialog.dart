@@ -69,7 +69,11 @@ class AddTaskSuccessDialog {
                 Icons.calendar_today,
               ),
               Spacing.h16,
-              _buildTaskDetails("Time", taskData.dueTime, Icons.access_time),
+              _buildTaskDetails(
+                "Time",
+                taskData.dueTime.getFormattedTime(),
+                Icons.access_time,
+              ),
               Spacing.h16,
               Divider(color: kContainerBgColor.withOpacity(0.2)),
               Spacing.h16,
@@ -132,9 +136,9 @@ class AddTaskSuccessDialog {
 
                 text: "Save",
                 onPressed: () {
-                  final isConnected = context.read<ConnectivityProvider>().isConnected;
-
-                  final scheduledTime = parseDueDateTime(data.dueDate, data.dueTime);
+                  final isConnected = context
+                      .read<ConnectivityProvider>()
+                      .isConnected;
 
                   if (isConnected) {
                     taskProvider.addTask(
@@ -145,15 +149,16 @@ class AddTaskSuccessDialog {
                         dueDate: data.dueDate,
                         dueTime: data.dueTime,
                       ),
-                          () async {
+                      () async {
                         NotificationService.showLocalNotification(
                           title: '✅ Task Created',
-                          body: 'Your new task "${data.title}" has been created!',
+                          body:
+                              'Your new task "${data.title}" has been created!',
                         );
-                        await NotificationService.scheduleReminder(
+                        NotificationService().scheduleNotification(
                           title: "Task Reminder",
                           body: "Don't forget to complete your task!",
-                          scheduledTime: DateTime.now().add(Duration(minutes: 2)),
+                          scheduledDate: DateTime.parse(data.dueTime),
                         );
                       },
                     );
@@ -169,15 +174,16 @@ class AddTaskSuccessDialog {
                         syncAction: SyncAction.create.name,
                         isSynced: false,
                       ),
-                          () async {
+                      () async {
                         NotificationService.showLocalNotification(
                           title: '✅ Task Created',
-                          body: 'Your new task "${data.title}" has been created!',
+                          body:
+                              'Your new task "${data.title}" has been created!',
                         );
-                        await NotificationService.scheduleReminder(
+                        NotificationService().scheduleNotification(
                           title: "Task Reminder",
                           body: "Don't forget to complete your task!",
-                          scheduledTime: scheduledTime,
+                          scheduledDate: DateTime.parse(data.dueTime),
                         );
                       },
                     );

@@ -64,7 +64,10 @@ class _ToDoHomePageState extends State<ToDoHomePage> {
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
             builder: (_) => NewTodoBottomSheet(),
-          );
+          ).then((value) {
+            taskProvider.descriptionController.clear();
+            taskProvider.titleController.clear();
+          },);
         },
         onAddNote: () => {},
         onAddJournal: () => {},
