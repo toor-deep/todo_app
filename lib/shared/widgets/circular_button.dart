@@ -9,14 +9,14 @@ class CircularIconButton extends StatelessWidget {
   final BoxBorder? border;
 
   const CircularIconButton({
-    Key? key,
+    super.key,
     required this.icon,
     this.size = 49,
     this.iconSize = 14,
     this.backgroundColor = Colors.white,
     this.iconColor = Colors.black,
     this.border,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

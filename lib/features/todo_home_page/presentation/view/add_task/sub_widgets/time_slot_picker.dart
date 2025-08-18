@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:todo/design-system/app_colors.dart';
 import 'package:todo/design-system/styles.dart';
 import 'package:todo/shared/toast_alert.dart';
@@ -10,7 +9,6 @@ import 'package:todo/shared/app_constants.dart';
 import 'package:intl/intl.dart';
 
 import '../../../utils/utils.dart';
-import 'bottom_icons.dart';
 
 class TimeSlotPickerBottomSheet extends StatefulWidget {
   final DateTime selectedDate;
